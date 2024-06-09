@@ -1,14 +1,14 @@
 import { Client, Guild } from 'discord.js';
-import { client } from '../main';
 
 export class ClientFetcher {
   private readonly client: Client;
-  constructor() {
+
+  constructor(client: Client) {
     this.client = client;
   }
 
   getAllGuildsFromCache() {
-    return this.client.guilds.cache;
+    return this.client.guilds?.cache;
   }
   getGuildFromCache(guildId: string) {
     return this.client.guilds.cache.get(guildId);
@@ -55,19 +55,16 @@ export class ClientFetcher {
    * @param {string} userId
    * Метод предназначен для поиска гильдий, где пользователь админ/овнер
    */
-  getAdminsGuild(userId: string) {
-    const guilds = this.getAllGuildsFromCache();
-    guilds.filter((guild) => {
-      const member = this.getMemberFromCache(guild.id, userId);
-      if (!member) {
-        return false;
-      }
-      if (!member.permissions.has(8n) || guild.ownerId !== member.id) {
-        return false;
-      }
-    });
-
-    return guilds;
+  getAdminsGuild(guilds: Guild[], userId: string) {
+    const sortedGuild = guilds
+      .filter((guild) => guild.members.cache.has(userId))
+      .map((guild) => {
+        const member = guild.members.cache.get(userId);
+        if (member.permissions.has(8n) || member.id === guild.ownerId) {
+          return guild;
+        }
+      });
+    return sortedGuild
   }
 
   async fetchGuilds() {
@@ -101,5 +98,3 @@ export class ClientFetcher {
     return await guild.members.fetch(userId);
   }
 }
-
-export const ClientFetcherInstance = new ClientFetcher();

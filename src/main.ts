@@ -10,8 +10,8 @@ export const client = new Client({
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  console.log(process.env.TOKEN);
-  await app.listen(3000);
-  client.login(process.env.TOKEN).then(() => console.log(`bot ${client.user.id}`));
+  await app.listen(3030);
 }
 bootstrap();
+
+client.login(process.env.TOKEN)
