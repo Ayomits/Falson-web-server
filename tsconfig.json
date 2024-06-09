@@ -18,12 +18,15 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {
-      "@common/*": ["src/discordjs/common/*"],
-      "@decorators/*": ["src/discordjs/common/decorators/*"],
-      "@functions/*": ["src/discordjs/common/functions/*"],
-      "@structures/*": ["src/discordjs/common/structure/*"],
-      "@constants": ["src/discordjs/constants.ts"]
-    }
+    // "paths": {
+    //   "@djs/common/*": ["src/discordjs/common/*"],
+    //   "@djs/decorators/*": ["src/discordjs/common/decorators/*"],
+    //   "@djs/functions/*": ["src/discordjs/common/functions/*"],
+    //   "@djs/structures/*": ["src/discordjs/common/structure/*"],
+    //   "@djs/constants": ["src/discordjs/constants.ts"],
+    //   "@api/*": ["src/api/*"],
+    //   "@api/common/*": ["src/api/common/*"],
+    //   "@api/modules/*": ["src/api/modules/*"],
+    // }
   }
 }

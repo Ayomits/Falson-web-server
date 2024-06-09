@@ -9,6 +9,10 @@ export class UsersService {
 
   constructor(@InjectModel(Users.name) private userModel: Model<Users>) {}
 
+  sendMessage(message: string) {
+    console.log(message)
+  }
+
   async create(userSchema: UserDocument) {
     return await this.userModel.create(userSchema)
   }

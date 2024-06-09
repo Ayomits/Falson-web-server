@@ -2,9 +2,9 @@ import { Event } from '../base';
 import { Client, Collection } from 'discord.js';
 import * as path from 'path';
 import kleur from 'kleur';
-import { rootDir } from '../constants';
 import { glob } from 'glob';
 import { EventStructure } from 'src/discordjs/common/structure/event.structure';
+import { getApp } from '..';
 
 export default class EventCollector extends Collection<string, Event> {
   readonly client: Client;
@@ -20,9 +20,13 @@ export default class EventCollector extends Collection<string, Event> {
     const currentDir = path.dirname(__dirname);
     const pattern = `${currentDir}/events/**/*.event.{js,ts}`;
     const files = await glob(pattern);
+    const app = await getApp();
     await Promise.all([
       files.map(async (file) => {
-        const eventClass = await import(`./${path.relative(__dirname, file)}`);
+        const relativePath = path.relative(__dirname, file);
+        const eventClass = await import(
+          relativePath.includes('/') ? relativePath : `./${relativePath}`
+        );
         Object.values(eventClass).forEach(async (event: any) => {
           if (
             typeof event === 'function' &&
@@ -32,12 +36,12 @@ export default class EventCollector extends Collection<string, Event> {
             if (eventInstance.once) {
               this.client.once(
                 eventInstance.name,
-                async (...args) => await eventInstance.execute(...args),
+                async (...args) => await eventInstance.execute(...args, app),
               );
             } else {
               this.client.on(
                 eventInstance.name,
-                async (...args) => await eventInstance.execute(...args),
+                async (...args) => await eventInstance.execute(...args, app),
               );
             }
             const date = new Date();

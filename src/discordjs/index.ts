@@ -6,8 +6,8 @@ import EventCollector from './events/events.collector';
 export const client = new Client({
   intents: [GatewayIntentBits.GuildMembers, GatewayIntentBits.Guilds],
 });
-async function getApp() {
-  return NestFactory.createApplicationContext(AppModule);
+export async function getApp() {
+  return await NestFactory.createApplicationContext(AppModule);
 }
 
 export async function discordjsInitialize() {
