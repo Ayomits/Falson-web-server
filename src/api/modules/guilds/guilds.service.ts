@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class AuthService {
-  async login() {}
+export class GuildsService {
+  async create() {}
 }

@@ -1,7 +1,8 @@
-import { Client, Guild } from 'discord.js';
+import { Channel, Client, Guild, GuildChannel } from 'discord.js';
+import { ChannelId, GuildId, RoleId, UserId } from '../types/base.types';
 
 export class ClientFetcher {
-  private readonly client: Client;
+  public readonly client: Client;
 
   constructor(client: Client) {
     this.client = client;
@@ -10,41 +11,41 @@ export class ClientFetcher {
   getAllGuildsFromCache() {
     return this.client.guilds?.cache;
   }
-  getGuildFromCache(guildId: string) {
+  getGuildFromCache(guildId: GuildId) {
     return this.client.guilds.cache.get(guildId);
   }
 
   getAllChannelsFromCache() {
     return this.client.channels.cache;
   }
-  getChannelFromCache(channelId: string) {
+  getChannelFromCache(channelId: ChannelId) {
     return this.client.channels.cache.get(channelId);
   }
 
   getUsersFromCache() {
     return this.client.users.cache;
   }
-  getUserFromCache(userId: string) {
+  getUserFromCache(userId: UserId) {
     return this.client.users.cache.get(userId);
   }
 
-  getRoleFromCache(guildId: string, roleId: string) {
+  getRoleFromCache(guildId: GuildId, roleId: RoleId) {
     const guild = this.getGuildFromCache(guildId);
     if (!guild) return null;
     return guild.roles.cache.get(roleId);
   }
 
-  getMembersCount(guildId: string) {
+  getMembersCount(guildId: GuildId) {
     const guild = this.getGuildFromCache(guildId);
     if (!guild) return null;
     return guild.memberCount;
   }
-  getMembersFromCache(guildId: string) {
+  getMembersFromCache(guildId: GuildId) {
     const guild = this.getGuildFromCache(guildId);
     if (!guild) return null;
     return guild.members.cache;
   }
-  getMemberFromCache(guildId: string, userId: string) {
+  getMemberFromCache(guildId: GuildId, userId: UserId) {
     const guild = this.getGuildFromCache(guildId);
     if (!guild) return null;
     return guild.members.cache.get(userId);
@@ -55,7 +56,7 @@ export class ClientFetcher {
    * @param {string} userId
    * Метод предназначен для поиска гильдий, где пользователь админ/овнер
    */
-  getAdminsGuild(guilds: Guild[], userId: string) {
+  getAdminsGuild(guilds: Guild[], userId: UserId) {
     const sortedGuild = guilds
       .filter((guild) => guild.members.cache.has(userId))
       .map((guild) => {
@@ -64,35 +65,35 @@ export class ClientFetcher {
           return guild;
         }
       });
-    return sortedGuild
+    return sortedGuild;
   }
 
   async fetchGuilds() {
     return await this.client.guilds.fetch();
   }
-  async fetchGuild(guildId: string) {
+  async fetchGuild(guildId: GuildId) {
     return await this.client.guilds.fetch(guildId);
   }
 
-  async fetchChannel(channelId: string) {
+  async fetchChannel(channelId: ChannelId) {
     return await this.client.channels.fetch(channelId);
   }
-  async fetchRoles(guildId: string, roleId: string) {
+  async fetchRoles(guildId: GuildId, roleId: RoleId) {
     const guild = await this.fetchGuild(guildId);
     if (!guild) return null;
     return await guild.roles.fetch(roleId);
   }
 
-  async fetchUser(userId: string) {
+  async fetchUser(userId: UserId) {
     return await this.client.users.fetch(userId);
   }
 
-  async fetchMembers(guildId: string) {
+  async fetchMembers(guildId: GuildId) {
     const guild = await this.fetchGuild(guildId);
     if (!guild) return null;
     return await guild.members.fetch();
   }
-  async fetchMember(guildId: string, userId: string) {
+  async fetchMember(guildId: GuildId, userId: UserId) {
     const guild = await this.fetchGuild(guildId);
     if (!guild) return null;
     return await guild.members.fetch(userId);
