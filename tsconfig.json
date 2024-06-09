@@ -16,6 +16,16 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@models/*": ["src/discordjs/src/models/*"],
+      "@kafka/*": ["src/discordjs/src/kafka/*"],
+      "@configs/*": ["src/discordjs/src/configs/*"],
+      "@common/*": ["src/discordjs/src/common/*"],
+      "@decorators/*": ["src/discordjs/src/common/decorators/*"],
+      "@functions/*": ["src/discordjs/src/common/functions/*"],
+      "@structures/*": ["src/discordjs/src/common/structure/*"],
+      "@constants": ["src/discordjs/src/constants.ts"]
+    }
   }
 }
