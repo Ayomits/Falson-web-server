@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "NodeNext",
     "declaration": true,
+    "moduleResolution": "NodeNext",
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -18,14 +19,11 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@models/*": ["src/discordjs/src/models/*"],
-      "@kafka/*": ["src/discordjs/src/kafka/*"],
-      "@configs/*": ["src/discordjs/src/configs/*"],
-      "@common/*": ["src/discordjs/src/common/*"],
-      "@decorators/*": ["src/discordjs/src/common/decorators/*"],
-      "@functions/*": ["src/discordjs/src/common/functions/*"],
-      "@structures/*": ["src/discordjs/src/common/structure/*"],
-      "@constants": ["src/discordjs/src/constants.ts"]
+      "@common/*": ["src/discordjs/common/*"],
+      "@decorators/*": ["src/discordjs/common/decorators/*"],
+      "@functions/*": ["src/discordjs/common/functions/*"],
+      "@structures/*": ["src/discordjs/common/structure/*"],
+      "@constants": ["src/discordjs/constants.ts"]
     }
   }
 }

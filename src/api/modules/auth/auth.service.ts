@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Redirect } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
-import { client } from 'src/discordjs/src/index';
+import { client } from 'src/discordjs/index';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import * as querystring from 'querystring';

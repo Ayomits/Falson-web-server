@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './api/app.module';
 
 import { config } from 'dotenv';
-import { discordjsInitialize } from './discordjs/src';
+import { discordjsInitialize } from './discordjs';
 
 config();
 
