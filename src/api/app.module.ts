@@ -8,12 +8,12 @@ import { GuildsModule } from './modules/guilds/guilds.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Сделать модуль глобальным
+      isGlobal: true,
     }),
     AuthModule,
     MongooseModule.forRootAsync({
-      imports: [ConfigModule], // Импортировать ConfigModule здесь
-      inject: [ConfigService], // Инжектировать ConfigService
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGOOSE_URI'),
       }),

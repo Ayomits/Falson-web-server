@@ -17,21 +17,3 @@ export enum PremiumEnum {
   ElitePrem = 3,
 }
 
-export type GuildsDocument = Document & {
-  guildId: string;
-  premiumStatus: number;
-
-  logsChannel: {
-    verifications: string;
-    staffAdders: string;
-  };
-  verificationsRoles: Map<string, RoleId>;
-  canUsePanel: string[]; // userIds
-};
-
-export type UserDocument = Document & {
-  userId: string;
-  username: string;
-  balance: number;
-  email: string;
-};

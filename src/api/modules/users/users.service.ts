@@ -1,28 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Users } from './users.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserDocument } from 'src/api/common/types/base.types';
 
 @Injectable()
 export class UsersService {
-
   constructor(@InjectModel(Users.name) private userModel: Model<Users>) {}
 
   sendMessage(message: string) {
-    console.log(message)
+    console.log(message);
   }
-
-  async create(userSchema: UserDocument) {
-    return await this.userModel.create(userSchema)
+  /**
+   *
+   * @param userSchema
+   * @returns
+   *
+   * Модель юзера
+   */
+  async create(userSchema: Users) {
+    const existedUser = await this.findByUserId(userSchema.userId);
+    if (existedUser) throw new BadRequestException(`This user already exists`);
+    return await this.userModel.create(userSchema);
   }
   async findByUserId(userId: string) {
-    return await this.userModel.findOne({userId: userId})
+    return await this.userModel.findOne({ userId: userId });
   }
-  async updateOne(userId: string, newSchema: UserDocument) {
-    return await this.userModel.updateOne({userId: userId}, {...newSchema})
+  async updateOne(userId: string, newSchema: Users) {
+    const existedUser = await this.findByUserId(userId);
+    if (!existedUser) throw new BadRequestException(`This user does not exist`);
+    return await existedUser.updateOne({ userId: userId }, { ...newSchema });
   }
   async deleteOne(userId: string) {
-    return await this.userModel.deleteOne({userId: userId})
+    const existedUser = await this.findByUserId(userId);
+    if (!existedUser) throw new BadRequestException(`This user does not exist`);
+    return await this.userModel.deleteOne({ userId: userId });
   }
+  /**
+   * Просто получает все сервера пользователя, где он админ или имеет право на редактирование панели
+   * Будет использовано в гарде
+   */
+  async fetchUserGuilds() {}
 }

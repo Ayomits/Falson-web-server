@@ -2,7 +2,7 @@ import { Guilds, GuildsSchema } from 'src/api/modules/guilds/guilds.schema';
 import { INestApplicationContext } from '@nestjs/common';
 import { Client } from 'discord.js';
 import { GuildsService } from 'src/api/modules/guilds/guilds.service';
-import { GuildsDocument, PremiumEnum } from 'src/api/common/types/base.types';
+import { PremiumEnum } from 'src/api/common/types/base.types';
 import mongoose, { Model } from 'mongoose';
 
 export class ReadySerivice {
@@ -15,7 +15,7 @@ export class ReadySerivice {
   async collectAllGuilds() {
     const guildsService = this.app.get(GuildsService);
     const allGuidls = await guildsService.findAll();
-    const guildsModel: Model<GuildsDocument> = mongoose.model<GuildsDocument>(
+    const guildsModel: Model<any> = mongoose.model<any>(
       Guilds.name.toLowerCase(),
       GuildsSchema,
     );

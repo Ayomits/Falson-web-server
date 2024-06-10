@@ -9,22 +9,10 @@ export class Guilds {
   @Prop({ default: 0 })
   premiumStatus?: number;
 
-  @Prop({
-    type: {
-      verifications: String,
-      staffAdders: String,
-    },
-    required: false,
-    default: null,
-  })
-  logsChannel?: {
-    verifications: string;
-    staffAdders: string;
-  };
-
-  @Prop({ type: Map, default: new Map<string, RoleId>() })
-  verificationsRoles: Map<string, RoleId>;
-
+  /**
+   * Здесь будут хранится роли/пользователи
+   * Их айдишники
+   */
   @Prop({ default: [] })
   canUsePanel: string[];
 }
