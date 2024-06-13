@@ -14,7 +14,7 @@ export class Guilds {
    * Их айдишники
    */
   @Prop({ default: [] })
-  canUsePanel: string[];
+  canUsePanel?: string[];
 }
 
 export const GuildsSchema = SchemaFactory.createForClass<Guilds>(Guilds);

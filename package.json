@@ -30,6 +30,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "axios": "^1.7.2",
     "cache-manager": "^5.6.1",
+    "class-validator": "^0.14.1",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
     "glob": "^10.4.1",

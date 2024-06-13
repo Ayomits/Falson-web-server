@@ -12,5 +12,5 @@ export async function getApp() {
 
 export async function discordjsInitialize() {
   new EventCollector(client);
-  await client.login(process.env.TOKEN);
+  await client.login(process.env.TOKEN).then(() => console.log(`Бот запущен`));
 }

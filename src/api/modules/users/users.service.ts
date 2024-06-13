@@ -22,6 +22,14 @@ export class UsersService {
     if (existedUser) throw new BadRequestException(`This user already exists`);
     return await this.userModel.create(userSchema);
   }
+  async createOrUpdate(userSchema: Users) {
+    const existedUser = await this.findByUserId(userSchema.userId);
+    if (!existedUser) {
+      return await this.create(userSchema)
+    }else {
+      return await this.updateOne(userSchema.userId, {...userSchema, balance: existedUser.balance})
+    }
+  }
   async findByUserId(userId: string) {
     return await this.userModel.findOne({ userId: userId });
   }

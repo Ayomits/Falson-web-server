@@ -4,10 +4,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
 import { GuildsModule } from './modules/guilds/guilds.module';
-
+import { CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CustomCacheInterceptor } from './interceptors/cache.interceptor';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    CacheModule.register({
       isGlobal: true,
     }),
     AuthModule,
@@ -22,6 +27,11 @@ import { GuildsModule } from './modules/guilds/guilds.module';
     GuildsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CustomCacheInterceptor,
+    },
+  ],
 })
 export class AppModule {}

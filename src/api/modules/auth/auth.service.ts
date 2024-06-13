@@ -1,14 +1,25 @@
-import { BadRequestException, Injectable, Redirect } from '@nestjs/common';
+/**
+ * ПОКА ЧТО НЕ ГОТОВО
+ * ОСТАЛОСЬ ПОДУМАТЬ НАД ТОКЕНАМИ
+ */
+
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs/index';
-import { Request, Response } from 'express';
+import { query, Request, Response } from 'express';
 import axios from 'axios';
 import * as querystring from 'querystring';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
   public clientService: ClientFetcher = new ClientFetcher(client);
 
+  constructor(@Inject(UsersService) private usersService: UsersService) {}
   generateLoginDiscordLink() {
     // Algorithm to generate Discord OAuth2 link
     const baseUrl = `https://discord.com/api/oauth2/authorize?client_id=${this.clientService.client.application.id}&response_type=code&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}`;
@@ -32,12 +43,20 @@ export class AuthService {
       'Content-Type': 'application/json',
     };
     const userData = await this.fetchUserData(headers);
-    return res.send(userData.data);
+    const newUser = await this.usersService.create({
+      userId: userData.userId,
+      tokens: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      },
+      username: userData.username
+    });
+    return res.redirect(`${process.env.FRONTEND_URL}`);
   }
 
   private async fetchTokens(code: string): Promise<any> {
     const data = {
-      client_id: process.env.CLIENT_ID,
+      client_id: this.clientService.client.application.id,
       client_secret: process.env.CLIENT_SECRET,
       grant_type: 'authorization_code',
       code: code,
@@ -45,27 +64,28 @@ export class AuthService {
       scope: JSON.parse(process.env.SCOPES).join(' '), // join scopes with space for token request
     };
 
-    try {
-      const req = await axios.post(
-        'https://discord.com/api/oauth2/token',
-        querystring.stringify(data),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-      );
+    const req = await axios.post(
+      'https://discord.com/api/oauth2/token',
+      querystring.stringify(data),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+    );
 
-      return {
-        accessToken: req.data?.access_token,
-        refreshToken: req.data?.refresh_token,
-      };
-    } catch (err) {
-      throw new BadRequestException(err.response?.data || err.message);
-    }
+    return {
+      accessToken: req.data?.access_token,
+      refreshToken: req.data?.refresh_token,
+    };
   }
   private async fetchUserData(headers: {
     Authorization: string;
     'Content-Type': string;
   }) {
-    return await axios.get('https://discord.com/api/users/@me', {
-      headers: headers,
-    });
+    try {
+      const query = await axios.get('https://discord.com/api/users/@me', {
+        headers: headers,
+      });
+      return query.data;
+    } catch (err) {
+      throw new BadRequestException(err.message);
+    }
   }
 }

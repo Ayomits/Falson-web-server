@@ -1,5 +1,3 @@
-import { Document } from 'mongoose';
-
 export type GuildId = string;
 export type UserId = string;
 export type ChannelId = string;
@@ -17,3 +15,8 @@ export enum PremiumEnum {
   ElitePrem = 3,
 }
 
+export enum VerificationType {
+  Traditional = 0,
+  Voice = 1,
+  Captcha = 2,
+}
