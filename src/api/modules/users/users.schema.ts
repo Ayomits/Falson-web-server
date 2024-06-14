@@ -5,14 +5,11 @@ export class Users {
   @Prop({ required: true })
   userId: string;
 
-  @Prop({ required: true })
-  username: string;
-
+  /**
+   * Для подписок, но я думаю мейби отказаться
+   */
   @Prop({ default: 0 })
-  balance?: number;
-
-  @Prop({ required: true })
-  email?: string;
+  balance?: number;;
 
   @Prop({
     type: { accessToken: String, refreshToken: String },
@@ -23,5 +20,15 @@ export class Users {
     accessToken: string;
     refreshToken: string;
   };
+
+  @Prop({type: String})
+  /**
+   * English
+   * Український
+   * Русский
+   * Быдло
+   * Румынский
+   */
+  language: string
 }
 export const UserScema = SchemaFactory.createForClass<Users>(Users);

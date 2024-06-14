@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs/index';
-import { query, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import axios from 'axios';
 import * as querystring from 'querystring';
 import { UsersService } from '../users/users.service';

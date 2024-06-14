@@ -53,4 +53,16 @@ export class VerificationController {
   async delete(@Param('guildId') guildId: string) {
     return await this.verificationService.deleteVerification(guildId);
   }
+  @Patch(':guildId/roles')
+  async updateVerificationRoles(@Param('guildId') guildId: string, @Body() roles: string[]) {
+    return this.verificationService.updateVerificationRoles(guildId, roles);
+  }
+
+  @Patch(':guildId/embed')
+  async updateVerificationEmbed(@Param('guildId') guildId: string, @Body() embed: Verification['tradionVerificationEmbed']) {
+    return this.verificationService.updateVerificationEmbed(guildId, embed);
+  }
+
+  @Patch(':guildId/voice')
+  async updateVoiceVerification(@Param('guildId') guildId:
 }

@@ -7,6 +7,8 @@ import { GuildsModule } from './modules/guilds/guilds.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CustomCacheInterceptor } from './interceptors/cache.interceptor';
+import { VerificationModule } from './modules/verification/verification.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,6 +16,7 @@ import { CustomCacheInterceptor } from './interceptors/cache.interceptor';
     }),
     CacheModule.register({
       isGlobal: true,
+      ttl: 600_000,
     }),
     AuthModule,
     MongooseModule.forRootAsync({
@@ -25,6 +28,7 @@ import { CustomCacheInterceptor } from './interceptors/cache.interceptor';
     }),
     UsersModule,
     GuildsModule,
+    VerificationModule,
   ],
   controllers: [],
   providers: [

@@ -12,4 +12,3 @@ async function bootstrap() {
 }
 bootstrap();
 discordjsInitialize();
-console.log('Application is running on: http://localhost:3031');

@@ -29,6 +29,17 @@ export class VerificationService {
     return newSettings;
   }
 
+  async findAll() {
+    return await this.verificationModel.find({});
+  }
+
+  async insertMany(dto: CreateVerificationDto[]) {
+    return await this.verificationModel.insertMany(dto);
+  }
+
+  async fetchByGuildId(guildId: string) {
+    return await this.verificationModel.findOne({ guildId: guildId });
+  }
   /**
    * Поиск настроек для определенной гильдии
    * возвращает все!!
@@ -38,11 +49,12 @@ export class VerificationService {
     if (existedSettings) {
       return existedSettings as unknown as Model<Verification>;
     }
-    const existedSettingsFromDb = await this.verificationModel.findOne({
-      guildId: guildId,
-    });
+    const existedSettingsFromDb = await this.fetchByGuildId(guildId);
     if (existedSettingsFromDb) {
-      this.cacheManager.set(`verification-${guildId}`, existedSettingsFromDb);
+      await this.cacheManager.set(
+        `verification-${guildId}`,
+        existedSettingsFromDb,
+      );
     }
     return existedSettingsFromDb as unknown as Model<Verification>;
   }
@@ -52,19 +64,6 @@ export class VerificationService {
    * @param guildId
    * @param newVerification
    */
-  async changeVerification(
-    newVerification: UpdateVerificationDto,
-  ) {
-    const existedSettings = await this.findByGuildId(newVerification.guildId);
-    if (!existedSettings) {
-      throw new BadRequestException(`Settings for this guild does not exists`);
-    }
-    const newSettings = await existedSettings?.updateOne({
-      ...newVerification,
-    });
-    this.cacheManager.set(`verification-${newVerification.guildId}`, newSettings);
-    return newSettings;
-  }
 
   async deleteVerification(guildId: string) {
     const existedSettings = await this.findByGuildId(guildId);
@@ -72,9 +71,25 @@ export class VerificationService {
       throw new BadRequestException(`This settings does'n exists`);
     }
     await Promise.all([
-      this.cacheManager.del(`verification-${guildId}`),
+      await this.cacheManager.del(`verification-${guildId}`),
       await existedSettings.deleteOne(),
     ]);
-    return null;
+    return;
+  }
+
+  /**
+   * Общий эндпоинт для всей верефки, определяет всё
+   */
+  async updateVerification(guildId: string, dto: Partial<Verification>) {
+    const verification = await this.findByGuildId(guildId);
+    if (!verification) {
+      throw new BadRequestException(
+        `Verification for guild ${guildId} not found`,
+      );
+    }
+    await this.verificationModel.updateOne({ ...dto, guildId: guildId });
+    const newVerification = await this.fetchByGuildId(guildId);
+    await this.cacheManager.set(`verification-${guildId}`, newVerification);
+    return newVerification;
   }
 }

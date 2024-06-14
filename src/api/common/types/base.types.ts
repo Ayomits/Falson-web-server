@@ -19,4 +19,20 @@ export enum VerificationType {
   Traditional = 0,
   Voice = 1,
   Captcha = 2,
+  Both = 3,
+}
+
+export type LanguagesType =
+  | 'English'
+  | 'Romanian'
+  | 'Russian'
+  | 'Ukrainian'
+  | 'Pacan';
+
+export enum LanguagesEnum{
+  English = "English",
+  Romanian = "Romanian",
+  Russian = "Russian",
+  Ukrainian = "Ukrainian",
+  Pacan = "Pacan",
 }

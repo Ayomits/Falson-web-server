@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ColorResolvable } from 'discord.js';
 import {
   ChannelIds,
+  LanguagesEnum,
   RoleId,
   RoleIds,
   VerificationType,
@@ -41,18 +42,20 @@ export class Verification {
 
   @Prop({
     required: false,
-    default: {
-      title: 'Шаблонный эмбед',
-      description: `Привет! Это шаблонный эмбед для верификации. Настрой всё под свой вкус на нашем сайте`,
-      color: `#2C2F33`,
-    },
+    default: [
+      {
+        title: 'Шаблонный эмбед',
+        description: `Привет! Это шаблонный эмбед для верификации. Настрой всё под свой вкус на нашем сайте`,
+        color: `#2C2F33`,
+      },
+    ],
     type: {},
   })
   /**
    * Короче, традиционная верификация всегда имеет эмбед, поэтому пусть челы его настраивают
    * Не прем фича : )
    */
-  tradionVerificationEmbed?: {
+  tradionVerificationEmbed?: Array<{
     title: string;
     description: string;
     thumbnail?: string;
@@ -66,7 +69,7 @@ export class Verification {
       url: string;
       value: string;
     };
-  };
+  }>;
 
   @Prop({ required: false, default: {}, type: Object })
   /**
@@ -85,6 +88,10 @@ export class Verification {
     curator?: RoleIds; // те кто могут добавлять новых саппортов
     support?: RoleId; // те кто являются саппортами
   };
+
+  
+  @Prop({default: LanguagesEnum.Russian})
+  language?: string
 }
 
-export const VerificationSchema = SchemaFactory.createForClass(Verification)
+export const VerificationSchema = SchemaFactory.createForClass(Verification);

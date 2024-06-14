@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { VerificationService } from './verification.service';
 import { VerificationController } from './verification.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Verification, VerificationSchema } from './verification.schema';
 
+@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -12,5 +13,6 @@ import { Verification, VerificationSchema } from './verification.schema';
   ],
   controllers: [VerificationController],
   providers: [VerificationService],
+  exports: [VerificationModule, VerificationService],
 })
 export class VerificationModule {}

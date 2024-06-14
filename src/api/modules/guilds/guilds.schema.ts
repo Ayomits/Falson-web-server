@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { RoleId } from 'src/api/common/types/base.types';
+import { LanguagesEnum, RoleId } from 'src/api/common/types/base.types';
 
 @Schema()
 export class Guilds {
   @Prop({ required: true })
-  guildId: string;
+  guildId?: string;
 
   @Prop({ default: 0 })
   premiumStatus?: number;
@@ -15,6 +15,7 @@ export class Guilds {
    */
   @Prop({ default: [] })
   canUsePanel?: string[];
+  
 }
 
 export const GuildsSchema = SchemaFactory.createForClass<Guilds>(Guilds);
