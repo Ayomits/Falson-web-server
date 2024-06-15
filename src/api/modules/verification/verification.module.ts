@@ -3,6 +3,8 @@ import { VerificationService } from './verification.service';
 import { VerificationController } from './verification.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Verification, VerificationSchema } from './verification.schema';
+import { GuildsService } from '../guilds/guilds.service';
+import { GuildsModule } from '../guilds/guilds.module';
 
 @Global()
 @Module({
@@ -10,6 +12,7 @@ import { Verification, VerificationSchema } from './verification.schema';
     MongooseModule.forFeature([
       { name: Verification.name, schema: VerificationSchema },
     ]),
+    GuildsModule
   ],
   controllers: [VerificationController],
   providers: [VerificationService],

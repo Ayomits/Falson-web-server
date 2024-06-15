@@ -3,11 +3,7 @@
  * ОСТАЛОСЬ ПОДУМАТЬ НАД ТОКЕНАМИ
  */
 
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs/index';
 import { Request, Response } from 'express';
@@ -37,24 +33,32 @@ export class AuthService {
 
   async handleCallback(req: Request, res: Response) {
     const code = req.query.code as string;
-    const tokens = await this.fetchTokens(code);
-    const headers = {
-      Authorization: `Bearer ${tokens.accessToken}`,
-      'Content-Type': 'application/json',
-    };
-    const userData = await this.fetchUserData(headers);
-    const newUser = await this.usersService.create({
-      userId: userData.userId,
-      tokens: {
+    try {
+      const tokens = await this.fetchTokens(code);
+      const headers = {
+        Authorization: `Bearer ${tokens.accessToken}`,
+        'Content-Type': 'application/json',
+      };
+      const userData = await this.usersService.fetchUserData({
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
-      },
-      username: userData.username
-    });
-    return res.redirect(`${process.env.FRONTEND_URL}`);
+      });
+      const newUser = await this.usersService.createOrUpdate({
+        userId: userData.id,
+        tokens: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        },
+      });
+      return await Promise.all([res.redirect(`https://www.youtube.com/watch?v=sCgxnYrkmn0&ab_channel=коробка📦`)]);
+    } catch (error) {
+      return res.status(400).send(error.message);
+    }
   }
 
-  private async fetchTokens(code: string): Promise<any> {
+  private async fetchTokens(
+    code: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const data = {
       client_id: this.clientService.client.application.id,
       client_secret: process.env.CLIENT_SECRET,
@@ -74,18 +78,5 @@ export class AuthService {
       accessToken: req.data?.access_token,
       refreshToken: req.data?.refresh_token,
     };
-  }
-  private async fetchUserData(headers: {
-    Authorization: string;
-    'Content-Type': string;
-  }) {
-    try {
-      const query = await axios.get('https://discord.com/api/users/@me', {
-        headers: headers,
-      });
-      return query.data;
-    } catch (err) {
-      throw new BadRequestException(err.message);
-    }
   }
 }

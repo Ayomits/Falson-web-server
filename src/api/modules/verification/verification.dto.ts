@@ -39,7 +39,7 @@ export class CreateVerificationDto {
       url: string;
       value: string;
     };
-  };
+  }[];
 
   @ValidateNested()
   voiceVerificationChannels?: {
@@ -54,10 +54,60 @@ export class CreateVerificationDto {
   };
 
   @IsString()
-  language: LanguagesType;
+  language?: LanguagesType;
 }
 
 export class UpdateVerificationDto extends PartialType(CreateVerificationDto) {
   @IsString()
   guildId: string;
+}
+
+export class RolesDto {
+  roles: string[];
+}
+
+export class EmbedsDto {
+  embeds: {
+    title: string;
+    description: string;
+    thumbnail?: string;
+    color: `#${string}`;
+    image?: string;
+    author?: {
+      url?: string;
+      value: string;
+    };
+    footer?: {
+      url: string;
+      value: string;
+    };
+  }[];
+}
+
+export class ChangeVerificationTypeDto {
+  verificationType: number;
+}
+
+export class VerificationLogsDto {
+  verificationLogs: {
+    feedBacks: string;
+    verifications: string;
+    acception: string;
+  };
+}
+
+export class VoiceVerificationChannelsDto {
+  voiceVerificationChannels?: {
+    category: ChannelIds;
+    ignoredChannels: ChannelIds;
+  };
+}
+
+export class VoiceVerificationStaffRoles {
+  curator?: RoleIds; // те кто могут добавлять новых саппортов
+  support?: RoleId; // те кто являются саппортами
+}
+
+export class LanguagesDto {
+  language: LanguagesType;
 }

@@ -10,5 +10,6 @@ import { Guilds, GuildsSchema } from './guilds.schema';
   ],
   controllers: [GuildsController],
   providers: [GuildsService],
+  exports: [GuildsModule, GuildsService]
 })
 export class GuildsModule {}

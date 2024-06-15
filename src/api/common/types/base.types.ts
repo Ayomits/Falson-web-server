@@ -10,9 +10,9 @@ export type RoleIds = RoleId[];
 
 export enum PremiumEnum {
   NoPrem = 0,
-  GoldPrem = 1,
-  DiamonPrem = 2,
-  ElitePrem = 3,
+  Donater = 1,
+  MiddleDonater = 2,
+  Sponsor = 3,
 }
 
 export enum VerificationType {
@@ -29,10 +29,40 @@ export type LanguagesType =
   | 'Ukrainian'
   | 'Pacan';
 
-export enum LanguagesEnum{
-  English = "English",
-  Romanian = "Romanian",
-  Russian = "Russian",
-  Ukrainian = "Ukrainian",
-  Pacan = "Pacan",
+export enum LanguagesEnum {
+  English = 'English',
+  Romanian = 'Romanian',
+  Russian = 'Russian',
+  Ukrainian = 'Ukrainian',
+  Pacan = 'Pacan',
 }
+
+export const validLanguages: string[] = [
+  'english',
+  'romanian',
+  'russian',
+  'ukrainian',
+  'pacan',
+];
+
+export enum BugHunterType {
+  NoBugHunter = 0,
+  GreenBugHunter = 1,
+  GoldBugHunter = 2,
+}
+
+export type UserGuild = {
+  id: string;
+  name: string;
+  icon: string;
+  owner: boolean;
+  permissions: number;
+  permissions_new: number;
+  features: string[];
+};
+export type UserValidGuild = {
+  guildId: string;
+  name: string;
+  icon: string;
+  invited: boolean;
+};

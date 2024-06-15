@@ -11,11 +11,13 @@ import {
   UseGuards,
   HttpStatus,
   HttpCode,
+  Put,
 } from '@nestjs/common';
 import { VerificationService } from './verification.service';
 import { Request } from 'express';
 import {
   CreateVerificationDto,
+  RolesDto,
   UpdateVerificationDto,
 } from './verification.dto';
 import { IsBotGuard } from 'src/api/guards/isBot.guard';
@@ -44,7 +46,7 @@ export class VerificationController {
   @Patch(`:guildId`)
   @UseGuards()
   async update(@Body() dto: UpdateVerificationDto) {
-    return this.verificationService.changeVerification(dto);
+    return this.verificationService.updateVerification(dto.guildId, dto as any);
   }
 
   @Delete(':guildId')
@@ -53,16 +55,4 @@ export class VerificationController {
   async delete(@Param('guildId') guildId: string) {
     return await this.verificationService.deleteVerification(guildId);
   }
-  @Patch(':guildId/roles')
-  async updateVerificationRoles(@Param('guildId') guildId: string, @Body() roles: string[]) {
-    return this.verificationService.updateVerificationRoles(guildId, roles);
-  }
-
-  @Patch(':guildId/embed')
-  async updateVerificationEmbed(@Param('guildId') guildId: string, @Body() embed: Verification['tradionVerificationEmbed']) {
-    return this.verificationService.updateVerificationEmbed(guildId, embed);
-  }
-
-  @Patch(':guildId/voice')
-  async updateVoiceVerification(@Param('guildId') guildId:
 }

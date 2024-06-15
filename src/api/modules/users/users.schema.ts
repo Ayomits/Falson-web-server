@@ -4,7 +4,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 export class Users {
   @Prop({ required: true })
   userId: string;
-
   /**
    * Для подписок, но я думаю мейби отказаться
    */
@@ -20,15 +19,5 @@ export class Users {
     accessToken: string;
     refreshToken: string;
   };
-
-  @Prop({type: String})
-  /**
-   * English
-   * Український
-   * Русский
-   * Быдло
-   * Румынский
-   */
-  language: string
 }
 export const UserScema = SchemaFactory.createForClass<Users>(Users);

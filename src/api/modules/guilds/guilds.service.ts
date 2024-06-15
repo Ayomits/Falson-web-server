@@ -22,9 +22,9 @@ export class GuildsService {
     }
     const guildFromDb = await this.fetchGuildByGuildId(guildId);
     if (guildFromDb) {
-      this.cacheManager.set(guildId, guildFromDb);
+      await this.cacheManager.set(guildId, guildFromDb);
     }
-    return guildFromDb;
+    return guildFromDb as unknown as Guilds;
   }
   async fetchGuildByGuildId(guildId: string) {
     return await this.guildsModel.findOne({ guildId: guildId });
@@ -63,8 +63,8 @@ export class GuildsService {
     if (newGuild.premiumStatus < PremiumEnum.NoPrem) {
       premiumStatus = PremiumEnum.NoPrem;
     }
-    if (newGuild.premiumStatus > PremiumEnum.ElitePrem) {
-      premiumStatus = PremiumEnum.ElitePrem;
+    if (newGuild.premiumStatus > PremiumEnum.Sponsor) {
+      premiumStatus = PremiumEnum.Sponsor;
     }
     await this.guildsModel.updateOne(
       { guildId: guildId },

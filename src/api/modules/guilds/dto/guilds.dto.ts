@@ -13,6 +13,9 @@ export class GuildDto {
 
   @IsString()
   language: LanguagesType;
+
+  @IsNumber()
+  bugHunter: number
 }
 
 export class GuildUsersDto {

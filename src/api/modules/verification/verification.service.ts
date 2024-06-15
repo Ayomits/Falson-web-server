@@ -1,18 +1,26 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   UpdateVerificationDto,
   CreateVerificationDto,
 } from './verification.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Verification } from './verification.schema';
-import { Model } from 'mongoose';
+import { Model, set } from 'mongoose';
 import { Cache } from '@nestjs/cache-manager';
+import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
+import { client } from 'src/discordjs';
+import { GuildsService } from '../guilds/guilds.service';
+import { PremiumEnum, validLanguages } from 'src/api/common/types/base.types';
+import { Guilds } from '../guilds/guilds.schema';
+import { defaultEmbeds } from 'src/api/common/types/defaultEmbeds';
 @Injectable()
 export class VerificationService {
+  private clientFetcher: ClientFetcher = new ClientFetcher(client);
   constructor(
     @InjectModel(Verification.name)
     private verificationModel: Model<Verification>,
     private cacheManager: Cache,
+    @Inject(GuildsService) private guildService: GuildsService,
   ) {}
   /**
    *
@@ -44,10 +52,10 @@ export class VerificationService {
    * Поиск настроек для определенной гильдии
    * возвращает все!!
    */
-  async findByGuildId(guildId: string): Promise<Model<Verification>> {
+  async findByGuildId(guildId: string): Promise<Verification> {
     const existedSettings = this.cacheManager.get(`verification-${guildId}`);
     if (existedSettings) {
-      return existedSettings as unknown as Model<Verification>;
+      return existedSettings as unknown as Verification;
     }
     const existedSettingsFromDb = await this.fetchByGuildId(guildId);
     if (existedSettingsFromDb) {
@@ -56,7 +64,7 @@ export class VerificationService {
         existedSettingsFromDb,
       );
     }
-    return existedSettingsFromDb as unknown as Model<Verification>;
+    return existedSettingsFromDb;
   }
 
   /**
@@ -65,8 +73,47 @@ export class VerificationService {
    * @param newVerification
    */
 
+  async updateVerification(guildId: string, dto: CreateVerificationDto) {
+    const [settings, guild] = await Promise.all([
+      this.findByGuildId(guildId),
+      this.guildService.findByGuildId(guildId),
+    ]);
+    if (!guild) {
+      throw new BadRequestException(`Settings for this guild does not exists`);
+    }
+    if (dto.tradionVerificationEmbed) {
+      if ((guild as Guilds).premiumStatus < PremiumEnum.Donater) {
+        dto.tradionVerificationEmbed = settings.tradionVerificationEmbed;
+      } else {
+        const sortedEmbed = dto.tradionVerificationEmbed.filter((embed) =>
+          this.isDefaultEmbed(embed),
+        );
+        if (sortedEmbed.length < 1) {
+          dto.tradionVerificationEmbed = settings.tradionVerificationEmbed;
+        }
+      }
+    }
+    await (settings as any).updateOne({ ...dto, guildId: dto.guildId });
+    const newVerification = await this.fetchByGuildId(guildId);
+    await this.cacheManager.set(`verification-${guildId}`, newVerification);
+    return newVerification;
+  }
+
+  private isDefaultEmbed(embed: any): boolean {
+    return defaultEmbeds.some(
+      (defaultEmbed) =>
+        defaultEmbed.title === embed.title &&
+        defaultEmbed.description === embed.description &&
+        defaultEmbed.color === embed.color &&
+        !embed.image &&
+        !embed.author &&
+        !embed.footer &&
+        !embed.thumbnail,
+    );
+  }
+
   async deleteVerification(guildId: string) {
-    const existedSettings = await this.findByGuildId(guildId);
+    const existedSettings = (await this.findByGuildId(guildId)) as any;
     if (!existedSettings) {
       throw new BadRequestException(`This settings does'n exists`);
     }
@@ -80,16 +127,4 @@ export class VerificationService {
   /**
    * Общий эндпоинт для всей верефки, определяет всё
    */
-  async updateVerification(guildId: string, dto: Partial<Verification>) {
-    const verification = await this.findByGuildId(guildId);
-    if (!verification) {
-      throw new BadRequestException(
-        `Verification for guild ${guildId} not found`,
-      );
-    }
-    await this.verificationModel.updateOne({ ...dto, guildId: guildId });
-    const newVerification = await this.fetchByGuildId(guildId);
-    await this.cacheManager.set(`verification-${guildId}`, newVerification);
-    return newVerification;
-  }
 }
