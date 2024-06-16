@@ -14,8 +14,7 @@ import {
 import { GuildsService } from './guilds.service';
 import { Guilds } from './guilds.schema';
 import { ExistedGuildInterceptor } from 'src/api/interceptors/existedGuild.interceptor';
-import { IsBotGuard } from 'src/api/guards/isBot.guard';
-import { LanguagesType } from 'src/api/common/types/base.types';
+import { IsBotGuard } from 'src/api/modules/guards/services/isBot.guard';
 import { GuildDto, GuildUsersDto } from './dto/guilds.dto';
 
 @Controller('guilds')
@@ -40,17 +39,17 @@ export class GuildsController {
    */
   @Post()
   @UseGuards(IsBotGuard)
-  create(@Body() guild: Guilds) {
+  create(@Body() guild: GuildDto) {
     return this.guildService.create(guild);
   }
 
+  @Patch(`:guildId`)
   /**
-   * Допустим, чел купил подписку, улучшаем уровень (придумай способ защиты)
+   * Допустим, чел купил подписку, улучшаем уровень
    * Гарда - IsBotGuard
    * Это чистый апдейт всего
+   * Также для баг хантеров
    */
-
-  @Patch(`:guildId`)
   @UseGuards(IsBotGuard)
   async update(@Param('guildId') guildId: string, @Body() newGuild: Guilds) {
     return await this.guildService.updateOne(guildId, newGuild);
@@ -58,56 +57,28 @@ export class GuildsController {
 
   /**
    * Права на редактирование панели
-   * @param guildId
-   * @param users
-   * @returns
+   * ТОЛЬКО ПУТ ЗАПРОСЫ И НИЧЕГО БОЛЕЕ
+   * ПРОЕБАЛСЯ ФРОНТ - ИДУТ ВСЕ НАХУЙ!!
    */
-
+  @Put(':guildId/users/set')
   /**
    *
    * Гарда isServerOwner
    */
-  @Put(':guildId/users/set')
   @UseGuards()
-  async pushUser(
+  async setUsers(
     @Param('guildId') guildId: string,
     @Body() users: GuildUsersDto,
   ) {
     return await this.guildService.setUsers(guildId, users.users);
   }
-  /**
-   *
-   * Гарда isServerOwner
-   */
-  @Patch(`:guildId/users/remove`)
-  @UseGuards()
-  async removeUsers(
-    @Param('guildId') guildId: string,
-    @Body() users: GuildUsersDto,
-  ) {
-    return await this.guildService.removeUsers(guildId, users.users);
-  }
-  /**
-   *
-   * Гарда isServerOwner
-   */
-  @Patch(':guildId/users/add')
-  @UseGuards()
-  async addUsers(
-    @Param('guildId') guildId: string,
-    @Body() users: GuildUsersDto,
-  ) {
-    return await this.guildService.addUser(guildId, users.users);
-  }
-  /**
-   * Сервер решил удалить бота => удаляем все данные о сервере
-   * В будущем добавим аналитику
-   */
 
   @Delete(`:guildId`)
+  /**
+   * Как бы, лучше уж у тебя база данных будет весить на 200 kb больше, чем иметь меньше аналитики и статистики на руках
+   */
   @UseGuards(IsBotGuard)
   delete(@Param('guildId') guildId: string) {
     return this.guildService.deleteOne(guildId);
   }
-
 }

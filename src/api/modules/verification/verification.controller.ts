@@ -20,7 +20,6 @@ import {
   RolesDto,
   UpdateVerificationDto,
 } from './verification.dto';
-import { IsBotGuard } from 'src/api/guards/isBot.guard';
 
 @Controller('verification')
 export class VerificationController {
@@ -30,12 +29,20 @@ export class VerificationController {
   ) {}
 
   @Get(`:guildId`)
+  /**
+   * Объединённая гарда. 
+   * Только бот + сервер овнер + вайтлист
+   */
+  @UseGuards()
   @HttpCode(HttpStatus.OK)
   async findByGuildId(@Param() guildId: string) {
     return this.verificationService.findByGuildId(guildId);
   }
 
   @Post()
+  /**
+   * Только сервер овнер + бот
+   */
   @HttpCode(201)
   @UseGuards()
   async create(@Req() req: Request, @Body() dto: CreateVerificationDto) {
@@ -44,12 +51,23 @@ export class VerificationController {
   }
 
   @Patch(`:guildId`)
+  /**
+   * Только сервер овнер + бот + вайтлист
+   * 
+   * По поводу фич, что под премкой и т.п. 
+   * Сейчас вшито, что если ты не донатер, то с тем чтобы поменять эмбед ты идёшь нахуй
+   * Но позже, мб, сделаю распил на куча эндпоинтов
+   * Пока что выпустится хочу : )
+   */
   @UseGuards()
   async update(@Body() dto: UpdateVerificationDto) {
     return this.verificationService.updateVerification(dto.guildId, dto as any);
   }
 
   @Delete(':guildId')
+  /**
+   * Только бот
+   */
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(IsBotGuard)
   async delete(@Param('guildId') guildId: string) {

@@ -6,16 +6,16 @@ export class GuildDto {
   guildId: string;
 
   @IsNumber()
-  premiumStatus: string;
+  premiumStatus?: string;
 
   @IsString({ each: true })
-  canUsePanel: string[];
+  canUsePanel?: string[];
 
   @IsString()
-  language: LanguagesType;
+  language?: LanguagesType;
 
   @IsNumber()
-  bugHunter: number
+  bugHunter?: number
 }
 
 export class GuildUsersDto {

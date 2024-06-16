@@ -5,10 +5,11 @@ import { Model } from 'mongoose';
 import { Cache } from '@nestjs/cache-manager';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
-import { UserGuild, UserValidGuild } from 'src/api/common/types/base.types';
+import { JwtPayload, UserGuild, UserValidGuild } from 'src/api/common/types/base.types';
 import { hasAdminPermission } from 'src/api/common/functions/isAdmin';
 
 import axios from 'axios';
+import { Request } from 'express';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,10 @@ export class UsersService {
     @InjectModel(Users.name) private userModel: Model<Users>,
     private cacheManager: Cache,
   ) {}
+
+  async findByToken(token: string) {
+    return await this.userModel.findOne({ refreshToken: token });
+  }
 
   async findUserData(userId: string) {
     const user = await this.findByUserId(userId);
@@ -29,7 +34,22 @@ export class UsersService {
     });
   }
 
-  async findUserGuilds(userId: string, count: number = 0): Promise<any> {
+  async findUser(userId: string) {
+    const user = (await this.findByUserId(userId)) as Users;
+
+    // Деструктурируем данные пользователя
+    if (user) {
+      const { userId, tokens, createdAt } = user;
+      return {
+        userId,
+        tokens,
+        createdAt,
+      };
+    }
+    throw new BadRequestException(`This user doesn't exists`);
+  }
+
+  async findUserGuilds(userId: string, count: number = 0): Promise<UserGuild[]> {
     const user = (await this.findByUserId(userId)) as Users;
     if (!user) {
       throw new BadRequestException(`This user doesn't exists`);
@@ -46,15 +66,14 @@ export class UsersService {
         return await this.findUserGuilds(userId, count + 1);
       }
     }
-    throw new BadRequestException(
-      `Discord rate limits`,
-    );
+    throw new BadRequestException(`Discord rate limits`);
   }
-  async ownersAndAdminsGuild(userId: string): Promise<UserValidGuild[]> {
-    const cacheKey = `${userId}-guilds`;
+  async ownersAndAdminsGuild(req: Request): Promise<UserValidGuild[]> {
+    const user = req.user as JwtPayload
+    const cacheKey = `${user.userId}-guilds`;
     const cachedGuilds = await this.cacheManager.get<UserGuild[]>(cacheKey);
     const guilds =
-      cachedGuilds || ((await this.findUserGuilds(userId)) as UserGuild[]);
+      cachedGuilds || ((await this.findUserGuilds(user.userId)) as UserGuild[]);
 
     if (!guilds) {
       throw new BadRequestException(`This user has no guilds`);
@@ -131,11 +150,13 @@ export class UsersService {
    * Чтобы токены рефреш и акцесс менять
    * */
   async createOrUpdate(userSchema: Users) {
-    const existedUser = await this.findByUserId(userSchema.userId);
+    const existedUser = (await this.findByUserId(
+      userSchema.userId,
+    )) as Model<Users> & Users;
     if (existedUser) {
-      return await this.updateOne(userSchema.userId, {
-        tokens: userSchema.tokens,
-        balance: (existedUser as any).balance || 0,
+      return await existedUser.updateOne({
+        ...userSchema,
+        userId: userSchema.userId,
       });
     } else {
       return await this.create(userSchema);

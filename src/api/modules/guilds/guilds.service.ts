@@ -3,9 +3,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Guilds } from './guilds.schema';
 import { Model } from 'mongoose';
 import { Cache } from '@nestjs/cache-manager';
-import { LanguagesType, PremiumEnum } from 'src/api/common/types/base.types';
+import {
+  BugHunterType,
+  LanguagesType,
+  PremiumEnum,
+} from 'src/api/common/types/base.types';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
+import { GuildDto } from './dto/guilds.dto';
 
 @Injectable()
 export class GuildsService {
@@ -29,7 +34,7 @@ export class GuildsService {
   async fetchGuildByGuildId(guildId: string) {
     return await this.guildsModel.findOne({ guildId: guildId });
   }
-  async create(guild: Guilds) {
+  async create(guild: GuildDto) {
     const guildFromCache = await this.cacheManager.get(guild.guildId);
     if (guildFromCache) {
       throw new BadRequestException(`This guild already exists`);
@@ -60,20 +65,31 @@ export class GuildsService {
       throw new BadRequestException(`This guild does not exists`);
     }
     let premiumStatus;
+    let bugHunter;
+    /**
+     * Тут говнокод на самом деле, но похуй
+     * Мб позже исправлю
+     * тех долг начинает расти эхх
+     */
     if (newGuild.premiumStatus < PremiumEnum.NoPrem) {
       premiumStatus = PremiumEnum.NoPrem;
     }
     if (newGuild.premiumStatus > PremiumEnum.Sponsor) {
       premiumStatus = PremiumEnum.Sponsor;
     }
-    await this.guildsModel.updateOne(
+    if (newGuild.bugHunter < BugHunterType.NoBugHunter) {
+      bugHunter = BugHunterType.NoBugHunter;
+    }
+    if (newGuild.bugHunter > BugHunterType.GoldBugHunter) {
+      bugHunter = BugHunterType.GoldBugHunter;
+    }
+    const updatedGuild = await this.guildsModel.findOneAndUpdate(
       { guildId: guildId },
       {
         ...newGuild,
         premiumStatus: premiumStatus,
       },
     );
-    const updatedGuild = await this.fetchGuildByGuildId(guildId);
     await this.cacheManager.set(guildId, updatedGuild); // Обновляем кеш после обновления данных в базе данных
     return updatedGuild;
   }
@@ -167,5 +183,4 @@ export class GuildsService {
     await this.cacheManager.set(guildId, newGuild);
     return newGuild;
   }
-
 }

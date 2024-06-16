@@ -66,3 +66,7 @@ export type UserValidGuild = {
   icon: string;
   invited: boolean;
 };
+
+export type JwtPayload = {
+  userId: string
+}

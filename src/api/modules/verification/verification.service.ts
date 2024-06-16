@@ -81,20 +81,34 @@ export class VerificationService {
     if (!guild) {
       throw new BadRequestException(`Settings for this guild does not exists`);
     }
-    if (dto.tradionVerificationEmbed) {
+    if (dto.tradionVerificationEmbed.length >= 1) {
+      const embeds = dto.tradionVerificationEmbed.slice(0, 10);
+      if (dto.tradionVerificationEmbed.length > 10) {
+        dto.tradionVerificationEmbed = embeds;
+      }
       if ((guild as Guilds).premiumStatus < PremiumEnum.Donater) {
         dto.tradionVerificationEmbed = settings.tradionVerificationEmbed;
       } else {
-        const sortedEmbed = dto.tradionVerificationEmbed.filter((embed) =>
+        const sortedEmbed = embeds.filter((embed) =>
           this.isDefaultEmbed(embed),
         );
         if (sortedEmbed.length < 1) {
           dto.tradionVerificationEmbed = settings.tradionVerificationEmbed;
+        } else {
+          dto.tradionVerificationEmbed = sortedEmbed;
         }
       }
     }
-    await (settings as any).updateOne({ ...dto, guildId: dto.guildId });
-    const newVerification = await this.fetchByGuildId(guildId);
+    const newVerification = await this.verificationModel
+      .findByIdAndUpdate(
+        (settings as any)._id,
+        {
+          ...dto,
+          guildId: dto.guildId,
+        },
+        { new: true },
+      )
+      .exec();
     await this.cacheManager.set(`verification-${guildId}`, newVerification);
     return newVerification;
   }
