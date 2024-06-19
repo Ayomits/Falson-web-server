@@ -68,5 +68,21 @@ export type UserValidGuild = {
 };
 
 export type JwtPayload = {
-  userId: string
-}
+  userId: string;
+};
+
+export type EmbedType = {
+  title: string;
+  description: string;
+  thumbnail?: string;
+  color: `#${string}`;
+  image?: string;
+  author?: {
+    url?: string;
+    value: string;
+  };
+  footer?: {
+    url: string;
+    value: string;
+  };
+};

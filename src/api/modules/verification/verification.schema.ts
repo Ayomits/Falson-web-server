@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ColorResolvable } from 'discord.js';
 import {
   ChannelIds,
   LanguagesEnum,
@@ -41,7 +40,7 @@ export class Verification {
    * Чел указывает рольки, что будут в команда /verify или эмбеде традиционной верефки
    * Если ролей больше 5, то селект меню, если меньше, то кнопки
    */
-  @Prop({ required: true, default: [] })
+  @Prop({ required: true, default: [], maxlength: 25 })
   verificationRoles?: string[];
 
   @Prop({
@@ -100,6 +99,9 @@ export class Verification {
    * Румынский
    */
   language: string;
+
+  @Prop({type: Boolean, default: false})
+  doubleVerification: boolean
 }
 
 export const VerificationSchema = SchemaFactory.createForClass(Verification);

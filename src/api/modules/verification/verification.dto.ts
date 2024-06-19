@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsBoolean, IsNumber, IsString, ValidateNested } from 'class-validator';
 import {
   ChannelIds,
   LanguagesType,
@@ -43,18 +43,24 @@ export class CreateVerificationDto {
 
   @ValidateNested()
   voiceVerificationChannels?: {
-    category: ChannelIds;
-    ignoredChannels: ChannelIds;
+    category: string[];
+    ignoredChannels: string[];
   };
 
   @ValidateNested()
   voiceVerificationStaffRoles?: {
-    curator?: RoleIds;
-    support?: RoleId;
+    curator?: string[];
+    support?: string;
   };
 
   @IsString()
-  language?: LanguagesType;
+  language?: string;
+
+  @IsString({ each: true })
+  verificationRoles?: string[];
+
+  @IsBoolean()
+  doubleVerification?: boolean;
 }
 
 export class UpdateVerificationDto extends PartialType(CreateVerificationDto) {

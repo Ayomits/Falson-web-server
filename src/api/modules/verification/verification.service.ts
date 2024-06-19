@@ -1,17 +1,19 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import {
-  UpdateVerificationDto,
-  CreateVerificationDto,
-} from './verification.dto';
+import { CreateVerificationDto } from './verification.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Verification } from './verification.schema';
-import { Model, set } from 'mongoose';
+import { Model } from 'mongoose';
 import { Cache } from '@nestjs/cache-manager';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
 import { GuildsService } from '../guilds/guilds.service';
-import { PremiumEnum, validLanguages } from 'src/api/common/types/base.types';
-import { Guilds } from '../guilds/guilds.schema';
+import {
+  EmbedType,
+  LanguagesEnum,
+  PremiumEnum,
+  validLanguages,
+  VerificationType,
+} from 'src/api/common/types/base.types';
 import { defaultEmbeds } from 'src/api/common/types/defaultEmbeds';
 @Injectable()
 export class VerificationService {
@@ -73,44 +75,134 @@ export class VerificationService {
    * @param newVerification
    */
 
-  async updateVerification(guildId: string, dto: CreateVerificationDto) {
-    const [settings, guild] = await Promise.all([
-      this.findByGuildId(guildId),
-      this.guildService.findByGuildId(guildId),
-    ]);
-    if (!guild) {
-      throw new BadRequestException(`Settings for this guild does not exists`);
-    }
-    if (dto.tradionVerificationEmbed.length >= 1) {
-      const embeds = dto.tradionVerificationEmbed.slice(0, 10);
-      if (dto.tradionVerificationEmbed.length > 10) {
-        dto.tradionVerificationEmbed = embeds;
-      }
-      if ((guild as Guilds).premiumStatus < PremiumEnum.Donater) {
-        dto.tradionVerificationEmbed = settings.tradionVerificationEmbed;
-      } else {
-        const sortedEmbed = embeds.filter((embed) =>
-          this.isDefaultEmbed(embed),
-        );
-        if (sortedEmbed.length < 1) {
-          dto.tradionVerificationEmbed = settings.tradionVerificationEmbed;
-        } else {
-          dto.tradionVerificationEmbed = sortedEmbed;
-        }
-      }
-    }
+  private async updateVerification(
+    guildId: string,
+    dto: Partial<CreateVerificationDto>,
+  ) {
+    const [settings] = await Promise.all([this.findByGuildId(guildId)]);
     const newVerification = await this.verificationModel
       .findByIdAndUpdate(
         (settings as any)._id,
         {
-          ...dto,
-          guildId: dto.guildId,
+          $set: {
+            ...dto,
+            guildId: dto.guildId,
+          },
         },
         { new: true },
       )
       .exec();
     await this.cacheManager.set(`verification-${guildId}`, newVerification);
     return newVerification;
+  }
+
+  async verificationTypeUpdate(
+    guildId: string,
+    dto: Partial<CreateVerificationDto['verificationType']>,
+  ) {
+    
+    let verificationType: number;
+    if (dto < VerificationType.Traditional) {
+      verificationType = VerificationType.Traditional;
+    }
+    if (dto > VerificationType.Both) {
+      verificationType = VerificationType.Both;
+    }
+    return this.updateVerification(guildId, {
+      verificationType: verificationType,
+    });
+  }
+
+  async updateVerificationRoles(guildId: string, roles: string[]) {
+    if (roles.length > 25) {
+      throw new BadRequestException(`Roles limit: 25`);
+    }
+    return await this.updateVerification(guildId, { verificationRoles: roles });
+  }
+
+  async premiumUpdateEmbeds(
+    guildId: string,
+    embeds: Partial<CreateVerificationDto['tradionVerificationEmbed']>,
+  ) {
+    if (embeds.length > 10) {
+      throw new BadRequestException(`Embeds limit: 10`)
+    }
+    if (embeds.length < 1) {
+      throw new BadRequestException(`Embeds minimum: 1`)
+    }
+    return this.updateVerification(guildId, {
+      tradionVerificationEmbed: embeds,
+    });
+  }
+
+  async defaultUpdateEmbeds(
+    guildId: string,
+    embed: Partial<CreateVerificationDto['tradionVerificationEmbed'][0]>,
+  ) {
+    if (this.isDefaultEmbed(embed)) {
+      return await this.updateVerification(guildId, {
+        tradionVerificationEmbed: [
+          embed as CreateVerificationDto['tradionVerificationEmbed'][0],
+        ],
+      });
+    }
+    throw new BadRequestException(`You're not available this function`);
+  }
+
+  async updateLanguage(
+    guildId: string,
+    dto: Partial<CreateVerificationDto['language']>,
+  ) {
+    let language: string;
+    if (!validLanguages.includes(dto)) {
+      language = LanguagesEnum.Russian;
+    }
+    return this.updateVerification(guildId, { language: language });
+  }
+
+  async updateVerificationLogs(
+    guildId: string,
+    dto: Partial<CreateVerificationDto['verificationLogs']>,
+  ) {
+    return this.updateVerification(guildId, { verificationLogs: dto });
+  }
+  
+  async voiceVerificationStaffRoles(
+    guildId: string,
+    dto: Partial<CreateVerificationDto['voiceVerificationStaffRoles']>,
+  ) {
+    return this.updateVerification(guildId, {
+      voiceVerificationStaffRoles: dto,
+    });
+  }
+
+  async voiceVerificationChannels(
+    guildId: string,
+    dto: Partial<CreateVerificationDto['voiceVerificationChannels']>,
+  ) {
+    return this.updateVerification(guildId, {
+      voiceVerificationChannels:
+        dto as CreateVerificationDto['voiceVerificationChannels'],
+    });
+  }
+
+  async doubleVerification(
+    guildId: string,
+    dto: Partial<CreateVerificationDto['doubleVerification']>,
+  ) {
+    return this.updateVerification(guildId, { doubleVerification: dto });
+  }
+
+  async deleteVerification(guildId: string) {
+    const existedSettings = (await this.findByGuildId(guildId)) as any;
+    if (!existedSettings) {
+      throw new BadRequestException(`This settings does'n exists`);
+    }
+    await Promise.all([
+      await this.cacheManager.del(`verification-${guildId}`),
+      await existedSettings.deleteOne(),
+    ]);
+    return;
   }
 
   private isDefaultEmbed(embed: any): boolean {
@@ -126,19 +218,4 @@ export class VerificationService {
     );
   }
 
-  async deleteVerification(guildId: string) {
-    const existedSettings = (await this.findByGuildId(guildId)) as any;
-    if (!existedSettings) {
-      throw new BadRequestException(`This settings does'n exists`);
-    }
-    await Promise.all([
-      await this.cacheManager.del(`verification-${guildId}`),
-      await existedSettings.deleteOne(),
-    ]);
-    return;
-  }
-
-  /**
-   * Общий эндпоинт для всей верефки, определяет всё
-   */
 }

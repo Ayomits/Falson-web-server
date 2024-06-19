@@ -68,71 +68,74 @@ export class AuthService {
    */
   async handleCallback(req: Request, res: Response) {
     const code = req.query.code as string;
-    try {
+
+    try{
       /**
-       * Обмениваем код на 2 токена
-       * Refresh и Access
-       * P.s. код это то, что в ссылке
-       * аля ?code=цифрыбуквыит.д.клейпидорас
-       * и вот это обмениваем
-       */
-      const tokens = await this.fetchTokens(code);
+     * Обмениваем код на 2 токена
+     * Refresh и Access
+     * P.s. код это то, что в ссылке
+     * аля ?code=цифрыбуквыит.д.клейпидорас
+     * и вот это обмениваем
+     */
+    const tokens = await this.fetchTokens(code);
+    /**
+     * Нам отсюда по факту-то нужен только userId))
+     */
+    const userData = await this.usersService.fetchUserData({
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    });
+    /**
+     * Большая объяснялка для читающего этот код
+     * У нас есть 2 типа токенов (именно тут)
+     * 1) Токены дискорда для получения инфы. Как-либо шифровать их нет смысла, если нас взломают, люди получат информацию херни
+     * 2) Наши токены для авторизации, того же типа, что и у дискорда, но это доступ к нашему серверу - хешируем
+     *
+     */
+    const authTokens = await this.getTokens({
+      userId: userData.id,
+    });
+    /**
+     * createOrUpdate
+     * Если есть пользователь - обновить
+     * Нет - создать
+     * Логично
+     */
+
+    const encryptedRefresh = this.encrypt(authTokens.refreshToken)
+    return await Promise.allSettled([
       /**
-       * Нам отсюда по факту-то нужен только userId))
+       * Посылаем токены НАШЕГО сервиса человеку в куки. Получить инфу по юзеру можно будет через 1 из наших токенов для получения других токенов для дс API
        */
-      const userData = await this.usersService.fetchUserData({
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
-      });
-      /**
-       * Большая объяснялка для читающего этот код
-       * У нас есть 2 типа токенов (именно тут)
-       * 1) Токены дискорда для получения инфы. Как-либо шифровать их нет смысла, если нас взломают, люди получат информацию херни
-       * 2) Наши токены для авторизации, того же типа, что и у дискорда, но это доступ к нашему серверу - хешируем
-       *
-       */
-      const authTokens = await this.getTokens({
+
+      res.cookie('accessToken', authTokens.accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 минут
+      }),
+
+      res.cookie('refreshToken', encryptedRefresh, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+      }),
+      
+      this.usersService.createOrUpdate({
         userId: userData.id,
-      });
-      /**
-       * createOrUpdate
-       * Если есть пользователь - обновить
-       * Нет - создать
-       * Логично
-       */
-
-      return await Promise.allSettled([
-        /**
-         * Посылаем токены НАШЕГО сервиса человеку в куки. Получить инфу по юзеру можно будет через 1 из наших токенов для получения других токенов для дс API
-         */
-
-        res.cookie('accessToken', authTokens.accessToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
-          maxAge: 15 * 60 * 1000, // 15 минут
-        }),
-
-        res.cookie('refreshToken', authTokens.refreshToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict',
-          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-        }),
-        res.redirect(
-          `${process.env.FRONTEND_URL}?accessToken=${authTokens.accessToken}`,
-        ),
-        this.usersService.createOrUpdate({
-          userId: userData.id,
-          tokens: {
-            accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken,
-          },
-          refreshToken: this.encrypt(authTokens.refreshToken),
-        }),
-      ]);
-    } catch (error) {
-      return res.status(400).send(error.message);
+        tokens: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        },
+        refreshToken: encryptedRefresh,
+      }),
+      res.redirect(
+        `${process.env.FRONTEND_URL}`,
+      ),
+    ]);
+    }catch(err){
+      console.log(err)
     }
   }
 
@@ -156,7 +159,7 @@ export class AuthService {
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(
       'aes-256-cbc',
-      Buffer.from(process.env.CRYPTO_KEY),
+      Buffer.from(String(process.env.CRYPTO_KEY).slice(0, 32)),
       iv,
     );
     let encrypted = cipher.update(text);
@@ -172,7 +175,7 @@ export class AuthService {
     const encryptedText = Buffer.from(textParts.join(':'), 'hex');
     const decipher = crypto.createDecipheriv(
       'aes-256-cbc',
-      Buffer.from(process.env.CRYPTO_KEY),
+      Buffer.from(String(process.env.CRYPTO_KEY).slice(0, 32)),
       iv,
     );
     let decrypted = decipher.update(encryptedText);
@@ -188,7 +191,7 @@ export class AuthService {
     /**
      * То, что будет в body запроса
      * Для получения данных
-     * 
+     *
      */
     const data = {
       client_id: this.clientService.client.application.id,

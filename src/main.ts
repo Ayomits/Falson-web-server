@@ -9,7 +9,7 @@ config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix(`/api`)
-  await app.listen(3031);
+  await app.listen(3000).then(() => {console.log(`3000`)});
 }
 bootstrap();
 discordjsInitialize();

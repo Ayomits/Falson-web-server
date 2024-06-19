@@ -14,11 +14,12 @@ import {
 import { GuildsService } from './guilds.service';
 import { Guilds } from './guilds.schema';
 import { ExistedGuildInterceptor } from 'src/api/interceptors/existedGuild.interceptor';
-import { IsBotGuard } from 'src/api/modules/guards/services/isBot.guard';
 import { GuildDto, GuildUsersDto } from './dto/guilds.dto';
+import { IsBotGuard } from '../auth/guards/isBot.guard';
+import { IsServerOwnerGuard } from '../auth/guards/isServerOwner.guard';
+import { IsAuthGuard } from '../auth/guards/isAuth.guard';
 
 @Controller('guilds')
-@UseInterceptors(ExistedGuildInterceptor)
 export class GuildsController {
   constructor(@Inject(GuildsService) private guildService: GuildsService) {}
 
@@ -50,7 +51,6 @@ export class GuildsController {
    * Это чистый апдейт всего
    * Также для баг хантеров
    */
-  @UseGuards(IsBotGuard)
   async update(@Param('guildId') guildId: string, @Body() newGuild: Guilds) {
     return await this.guildService.updateOne(guildId, newGuild);
   }
@@ -66,6 +66,7 @@ export class GuildsController {
    * Гарда isServerOwner
    */
   @UseGuards()
+  @UseGuards(IsAuthGuard, IsServerOwnerGuard)
   async setUsers(
     @Param('guildId') guildId: string,
     @Body() users: GuildUsersDto,

@@ -2,75 +2,145 @@ import {
   Controller,
   Get,
   Post,
-  Body,
   Patch,
-  Param,
+  Put,
   Delete,
+  Body,
+  Param,
   Inject,
   Req,
   UseGuards,
   HttpStatus,
   HttpCode,
-  Put,
 } from '@nestjs/common';
 import { VerificationService } from './verification.service';
 import { Request } from 'express';
-import {
-  CreateVerificationDto,
-  RolesDto,
-  UpdateVerificationDto,
-} from './verification.dto';
+import { CreateVerificationDto } from './verification.dto';
+import { IsBotGuard } from '../auth/guards/isBot.guard';
+import { IsAuthGuard } from '../auth/guards/isAuth.guard';
+import { IsWhiteListGuard } from '../auth/guards/IsWhiteList.guard';
+import { PremiumStatus } from '../auth/guards/premiumStatus.guard';
+import { PremiumEnum } from 'src/api/common/types/base.types';
 
-@Controller('verification')
+@Controller('verifications')
 export class VerificationController {
   constructor(
     @Inject(VerificationService)
     private readonly verificationService: VerificationService,
   ) {}
 
-  @Get(`:guildId`)
-  /**
-   * Объединённая гарда. 
-   * Только бот + сервер овнер + вайтлист
-   */
-  @UseGuards()
+  @Get(':guildId')
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
   @HttpCode(HttpStatus.OK)
-  async findByGuildId(@Param() guildId: string) {
+  async getVerificationByGuildId(@Param('guildId') guildId: string) {
     return this.verificationService.findByGuildId(guildId);
   }
 
   @Post()
-  /**
-   * Только сервер овнер + бот
-   */
-  @HttpCode(201)
-  @UseGuards()
-  async create(@Req() req: Request, @Body() dto: CreateVerificationDto) {
+  @UseGuards(IsBotGuard)
+  @HttpCode(HttpStatus.CREATED)
+  async createVerification(@Req() req: Request, @Body() dto: CreateVerificationDto) {
     const guildId = req.body.guildId;
     return this.verificationService.createAllSettings(guildId, dto);
   }
 
-  @Patch(`:guildId`)
-  /**
-   * Только сервер овнер + бот + вайтлист
-   * 
-   * По поводу фич, что под премкой и т.п. 
-   * Сейчас вшито, что если ты не донатер, то с тем чтобы поменять эмбед ты идёшь нахуй
-   * Но позже, мб, сделаю распил на куча эндпоинтов
-   * Пока что выпустится хочу : )
-   */
-  @UseGuards()
-  async update(@Body() dto: UpdateVerificationDto) {
-    return this.verificationService.updateVerification(dto.guildId, dto as any);
+  @Patch(':guildId/verification-type')
+  @PremiumStatus(PremiumEnum.NoPrem)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updateVerificationType(
+    @Param('guildId') guildId: string,
+    @Body() dto: Partial<CreateVerificationDto['verificationType']>,
+  ) {
+    return this.verificationService.verificationTypeUpdate(guildId, dto);
+  }
+
+  @Patch(':guildId/verification-embeds/premium')
+  @PremiumStatus(PremiumEnum.Donater)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updatePremiumVerificationEmbeds(
+    @Param('guildId') guildId: string,
+    @Body() embeds: Partial<CreateVerificationDto['tradionVerificationEmbed']>,
+  ) {
+    return this.verificationService.premiumUpdateEmbeds(guildId, embeds);
+  }
+
+  @Put(':guildId/verification-embeds/default')
+  @PremiumStatus(PremiumEnum.NoPrem)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updateDefaultVerificationEmbeds(
+    @Param('guildId') guildId: string,
+    @Body() embed: Partial<CreateVerificationDto['tradionVerificationEmbed'][0]>,
+  ) {
+    return this.verificationService.defaultUpdateEmbeds(guildId, embed);
+  }
+
+  @Patch(':guildId/verification-language')
+  @PremiumStatus(PremiumEnum.NoPrem)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updateVerificationLanguage(
+    @Param('guildId') guildId: string,
+    @Body() dto: Partial<CreateVerificationDto['language']>,
+  ) {
+    return this.verificationService.updateLanguage(guildId, dto);
+  }
+
+  @Put(':guildId/verification-logs')
+  @PremiumStatus(PremiumEnum.NoPrem)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updateVerificationLogs(
+    @Param('guildId') guildId: string,
+    @Body() dto: Partial<CreateVerificationDto['verificationLogs']>,
+  ) {
+    return this.verificationService.updateVerificationLogs(guildId, dto);
+  }
+
+  @Put(':guildId/verification-roles')
+  @PremiumStatus(PremiumEnum.NoPrem)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updateVerificationRoles(
+    @Param('guildId') guildId: string,
+    @Body() dto: Partial<CreateVerificationDto['verificationRoles']>,
+  ) {
+    return this.verificationService.updateVerificationRoles(guildId, dto);
+  }
+
+  @Patch(':guildId/voice-verification-channels')
+  @PremiumStatus(PremiumEnum.NoPrem)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updateVoiceVerificationChannels(
+    @Param('guildId') guildId: string,
+    @Body() dto: Partial<CreateVerificationDto['voiceVerificationChannels']>,
+  ) {
+    return this.verificationService.voiceVerificationChannels(
+      guildId,
+      dto as CreateVerificationDto['voiceVerificationChannels'],
+    );
+  }
+
+  @Patch(':guildId/voice-verification-staff-roles')
+  @PremiumStatus(PremiumEnum.NoPrem)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updateVoiceVerificationStaffRoles(
+    @Param('guildId') guildId: string,
+    @Body() dto: Partial<CreateVerificationDto['voiceVerificationStaffRoles']>,
+  ) {
+    return this.verificationService.voiceVerificationStaffRoles(guildId, dto);
+  }
+
+  @Patch(':guildId/double-verification-settings')
+  @PremiumStatus(PremiumEnum.NoPrem)
+  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  async updateDoubleVerificationSettings(
+    @Param('guildId') guildId: string,
+    @Body() dto: Partial<CreateVerificationDto['doubleVerification']>,
+  ) {
+    return this.verificationService.doubleVerification(guildId, dto);
   }
 
   @Delete(':guildId')
-  /**
-   * Только бот
-   */
-  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(IsBotGuard)
-  async delete(@Param('guildId') guildId: string) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteVerification(@Param('guildId') guildId: string) {
     return await this.verificationService.deleteVerification(guildId);
   }
 }

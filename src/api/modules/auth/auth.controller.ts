@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 
 import { client } from 'src/discordjs/index';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
+import { IsServerOwnerGuard } from './guards/isServerOwner.guard';
 
 /**
  * Публичный контроллер
