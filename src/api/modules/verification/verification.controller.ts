@@ -19,10 +19,11 @@ import { CreateVerificationDto } from './verification.dto';
 import { IsBotGuard } from '../auth/guards/isBot.guard';
 import { IsAuthGuard } from '../auth/guards/isAuth.guard';
 import { IsWhiteListGuard } from '../auth/guards/IsWhiteList.guard';
-import { PremiumStatus } from '../auth/guards/premiumStatus.guard';
+import { PremiumStatus, PremiumStatusGuard } from '../auth/guards/premiumStatus.guard';
 import { PremiumEnum } from 'src/api/common/types/base.types';
 
 @Controller('verifications')
+@UseGuards(PremiumStatusGuard)
 export class VerificationController {
   constructor(
     @Inject(VerificationService)
@@ -30,16 +31,20 @@ export class VerificationController {
   ) {}
 
   @Get(':guildId')
-  @UseGuards(IsAuthGuard, IsWhiteListGuard)
+  @PremiumStatus(PremiumEnum.NoPrem)
   @HttpCode(HttpStatus.OK)
   async getVerificationByGuildId(@Param('guildId') guildId: string) {
     return this.verificationService.findByGuildId(guildId);
   }
 
   @Post()
+  @PremiumStatus(PremiumEnum.NoPrem)
   @UseGuards(IsBotGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createVerification(@Req() req: Request, @Body() dto: CreateVerificationDto) {
+  async createVerification(
+    @Req() req: Request,
+    @Body() dto: CreateVerificationDto,
+  ) {
     const guildId = req.body.guildId;
     return this.verificationService.createAllSettings(guildId, dto);
   }
@@ -49,17 +54,17 @@ export class VerificationController {
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updateVerificationType(
     @Param('guildId') guildId: string,
-    @Body() dto: Partial<CreateVerificationDto['verificationType']>,
+    @Body() dto: Partial<CreateVerificationDto>,
   ) {
     return this.verificationService.verificationTypeUpdate(guildId, dto);
   }
 
-  @Patch(':guildId/verification-embeds/premium')
+  @Put(':guildId/verification-embeds/premium')
   @PremiumStatus(PremiumEnum.Donater)
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updatePremiumVerificationEmbeds(
     @Param('guildId') guildId: string,
-    @Body() embeds: Partial<CreateVerificationDto['tradionVerificationEmbed']>,
+    @Body() embeds: CreateVerificationDto,
   ) {
     return this.verificationService.premiumUpdateEmbeds(guildId, embeds);
   }
@@ -69,7 +74,8 @@ export class VerificationController {
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updateDefaultVerificationEmbeds(
     @Param('guildId') guildId: string,
-    @Body() embed: Partial<CreateVerificationDto['tradionVerificationEmbed'][0]>,
+    @Body()
+    embed: Partial<CreateVerificationDto>,
   ) {
     return this.verificationService.defaultUpdateEmbeds(guildId, embed);
   }
@@ -79,7 +85,7 @@ export class VerificationController {
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updateVerificationLanguage(
     @Param('guildId') guildId: string,
-    @Body() dto: Partial<CreateVerificationDto['language']>,
+    @Body() dto: Partial<CreateVerificationDto>,
   ) {
     return this.verificationService.updateLanguage(guildId, dto);
   }
@@ -89,7 +95,7 @@ export class VerificationController {
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updateVerificationLogs(
     @Param('guildId') guildId: string,
-    @Body() dto: Partial<CreateVerificationDto['verificationLogs']>,
+    @Body() dto: Partial<CreateVerificationDto>,
   ) {
     return this.verificationService.updateVerificationLogs(guildId, dto);
   }
@@ -99,9 +105,9 @@ export class VerificationController {
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updateVerificationRoles(
     @Param('guildId') guildId: string,
-    @Body() dto: Partial<CreateVerificationDto['verificationRoles']>,
+    @Body() dto: Partial<CreateVerificationDto>,
   ) {
-    return this.verificationService.updateVerificationRoles(guildId, dto);
+    return this.verificationService.updateVerificationRoles(guildId, dto.verificationRoles);
   }
 
   @Patch(':guildId/voice-verification-channels')
@@ -109,11 +115,11 @@ export class VerificationController {
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updateVoiceVerificationChannels(
     @Param('guildId') guildId: string,
-    @Body() dto: Partial<CreateVerificationDto['voiceVerificationChannels']>,
+    @Body() dto: Partial<CreateVerificationDto>,
   ) {
     return this.verificationService.voiceVerificationChannels(
       guildId,
-      dto as CreateVerificationDto['voiceVerificationChannels'],
+      dto,
     );
   }
 
@@ -122,25 +128,26 @@ export class VerificationController {
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updateVoiceVerificationStaffRoles(
     @Param('guildId') guildId: string,
-    @Body() dto: Partial<CreateVerificationDto['voiceVerificationStaffRoles']>,
+    @Body() dto: Partial<CreateVerificationDto>,
   ) {
     return this.verificationService.voiceVerificationStaffRoles(guildId, dto);
   }
 
   @Patch(':guildId/double-verification-settings')
-  @PremiumStatus(PremiumEnum.NoPrem)
+  @PremiumStatus(PremiumEnum.Donater)
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
   async updateDoubleVerificationSettings(
     @Param('guildId') guildId: string,
-    @Body() dto: Partial<CreateVerificationDto['doubleVerification']>,
+    @Body() dto: Partial<CreateVerificationDto>,
   ) {
     return this.verificationService.doubleVerification(guildId, dto);
   }
 
   @Delete(':guildId')
+  @PremiumStatus(PremiumEnum.NoPrem)
   @UseGuards(IsBotGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteVerification(@Param('guildId') guildId: string) {
-    return await this.verificationService.deleteVerification(guildId);
+    return this.verificationService.deleteVerification(guildId);
   }
 }

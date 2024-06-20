@@ -10,6 +10,7 @@ import { IsBotGuard } from './guards/isBot.guard';
 import { IsServerOwnerGuard } from './guards/isServerOwner.guard';
 import { IsWhiteListGuard } from './guards/IsWhiteList.guard';
 import { GuildsModule } from '../guilds/guilds.module';
+import { PremiumStatusGuard } from './guards/premiumStatus.guard';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { GuildsModule } from '../guilds/guilds.module';
     IsBotGuard,
     IsServerOwnerGuard,
     IsWhiteListGuard,
+    PremiumStatusGuard,
   ],
   exports: [
     AuthModule,
@@ -36,6 +38,7 @@ import { GuildsModule } from '../guilds/guilds.module';
     IsBotGuard,
     IsServerOwnerGuard,
     IsWhiteListGuard,
+    PremiumStatusGuard,
     JwtModule,
   ],
 })

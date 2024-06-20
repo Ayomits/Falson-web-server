@@ -31,7 +31,7 @@ export class UsersController {
    */
 
   async findByUserId(@Req() req: Request) {
-    return await this.usersService.findUser((req.user as JwtPayload).userId);
+    return this.usersService.findUser((req.user as JwtPayload).userId);
   }
 
   @Get('@me/data')
@@ -41,7 +41,7 @@ export class UsersController {
    */
 
   async findUserDate(@Req() req: Request) {
-    return await this.usersService.findUserData(
+    return this.usersService.findUserData(
       (req.user as JwtPayload).userId,
     );
   }
@@ -53,6 +53,6 @@ export class UsersController {
    */
 
   async ownersGuild(@Req() req: Request) {
-    return await this.usersService.ownersAndAdminsGuild(req);
+    return this.usersService.ownersAndAdminsGuild(req);
   }
 }

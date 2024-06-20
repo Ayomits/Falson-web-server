@@ -15,6 +15,9 @@ import {
   VerificationType,
 } from 'src/api/common/types/base.types';
 import { defaultEmbeds } from 'src/api/common/types/defaultEmbeds';
+import { plainToInstance } from 'class-transformer';
+import { getAllProperties } from 'src/api/common/functions/classProperties';
+
 @Injectable()
 export class VerificationService {
   private clientFetcher: ClientFetcher = new ClientFetcher(client);
@@ -55,7 +58,9 @@ export class VerificationService {
    * возвращает все!!
    */
   async findByGuildId(guildId: string): Promise<Verification> {
-    const existedSettings = this.cacheManager.get(`verification-${guildId}`);
+    const existedSettings = await this.cacheManager.get(
+      `verification-${guildId}`,
+    );
     if (existedSettings) {
       return existedSettings as unknown as Verification;
     }
@@ -98,16 +103,16 @@ export class VerificationService {
 
   async verificationTypeUpdate(
     guildId: string,
-    dto: Partial<CreateVerificationDto['verificationType']>,
+    dto: Partial<CreateVerificationDto>,
   ) {
-    
-    let verificationType: number;
-    if (dto < VerificationType.Traditional) {
+    let verificationType: number = dto.verificationType;
+    if (dto.verificationType < VerificationType.Traditional) {
       verificationType = VerificationType.Traditional;
     }
-    if (dto > VerificationType.Both) {
+    if (dto.verificationType > VerificationType.Both) {
       verificationType = VerificationType.Both;
     }
+
     return this.updateVerification(guildId, {
       verificationType: verificationType,
     });
@@ -122,39 +127,37 @@ export class VerificationService {
 
   async premiumUpdateEmbeds(
     guildId: string,
-    embeds: Partial<CreateVerificationDto['tradionVerificationEmbed']>,
+    embeds: Partial<CreateVerificationDto>,
   ) {
-    if (embeds.length > 10) {
-      throw new BadRequestException(`Embeds limit: 10`)
+    if (!embeds.tradionVerificationEmbed) {
+      throw new BadRequestException(`Embeds minimum: 1`);
     }
-    if (embeds.length < 1) {
-      throw new BadRequestException(`Embeds minimum: 1`)
+    if (embeds?.tradionVerificationEmbed.length > 10) {
+      throw new BadRequestException(`Embeds limit: 10`);
+    }
+    if (embeds?.tradionVerificationEmbed.length < 1) {
+      throw new BadRequestException(`Embeds minimum: 1`);
     }
     return this.updateVerification(guildId, {
-      tradionVerificationEmbed: embeds,
+      tradionVerificationEmbed: embeds?.tradionVerificationEmbed,
     });
   }
 
   async defaultUpdateEmbeds(
     guildId: string,
-    embed: Partial<CreateVerificationDto['tradionVerificationEmbed'][0]>,
+    embed: Partial<CreateVerificationDto>,
   ) {
-    if (this.isDefaultEmbed(embed)) {
+    if (this.isDefaultEmbed(embed.tradionVerificationEmbed[0])) {
       return await this.updateVerification(guildId, {
-        tradionVerificationEmbed: [
-          embed as CreateVerificationDto['tradionVerificationEmbed'][0],
-        ],
+        tradionVerificationEmbed: [embed.tradionVerificationEmbed[0]],
       });
     }
     throw new BadRequestException(`You're not available this function`);
   }
 
-  async updateLanguage(
-    guildId: string,
-    dto: Partial<CreateVerificationDto['language']>,
-  ) {
-    let language: string;
-    if (!validLanguages.includes(dto)) {
+  async updateLanguage(guildId: string, dto: Partial<CreateVerificationDto>) {
+    let language: string = dto.language;
+    if (!validLanguages.includes(dto.language)) {
       language = LanguagesEnum.Russian;
     }
     return this.updateVerification(guildId, { language: language });
@@ -162,35 +165,38 @@ export class VerificationService {
 
   async updateVerificationLogs(
     guildId: string,
-    dto: Partial<CreateVerificationDto['verificationLogs']>,
-  ) {
-    return this.updateVerification(guildId, { verificationLogs: dto });
-  }
-  
-  async voiceVerificationStaffRoles(
-    guildId: string,
-    dto: Partial<CreateVerificationDto['voiceVerificationStaffRoles']>,
+    dto: Partial<CreateVerificationDto>,
   ) {
     return this.updateVerification(guildId, {
-      voiceVerificationStaffRoles: dto,
+      verificationLogs: dto.verificationLogs,
+    });
+  }
+
+  async voiceVerificationStaffRoles(
+    guildId: string,
+    dto: Partial<CreateVerificationDto>,
+  ) {
+    return this.updateVerification(guildId, {
+      voiceVerificationStaffRoles: dto.voiceVerificationStaffRoles,
     });
   }
 
   async voiceVerificationChannels(
     guildId: string,
-    dto: Partial<CreateVerificationDto['voiceVerificationChannels']>,
+    dto: Partial<CreateVerificationDto>,
   ) {
     return this.updateVerification(guildId, {
-      voiceVerificationChannels:
-        dto as CreateVerificationDto['voiceVerificationChannels'],
+      voiceVerificationChannels: dto.voiceVerificationChannels,
     });
   }
 
   async doubleVerification(
     guildId: string,
-    dto: Partial<CreateVerificationDto['doubleVerification']>,
+    dto: Partial<CreateVerificationDto>,
   ) {
-    return this.updateVerification(guildId, { doubleVerification: dto });
+    return this.updateVerification(guildId, {
+      doubleVerification: dto.doubleVerification,
+    });
   }
 
   async deleteVerification(guildId: string) {
@@ -217,5 +223,4 @@ export class VerificationService {
         !embed.thumbnail,
     );
   }
-
 }

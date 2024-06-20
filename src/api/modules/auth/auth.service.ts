@@ -63,125 +63,101 @@ export class AuthService {
   login(res: Response) {
     return res.redirect(this.generateLoginDiscordLink());
   }
+
+  logout(req: Request) {
+    this.usersService.updateOne((req.user as any).userId, { refreshToken: null });
+    return {
+      message: `Ok`
+    }
+  }
   /**
    * Обработка колбэка и авторизация пользователя
    */
   async handleCallback(req: Request, res: Response) {
     const code = req.query.code as string;
 
-    try{
+    try {
       /**
-     * Обмениваем код на 2 токена
-     * Refresh и Access
-     * P.s. код это то, что в ссылке
-     * аля ?code=цифрыбуквыит.д.клейпидорас
-     * и вот это обмениваем
-     */
-    const tokens = await this.fetchTokens(code);
-    /**
-     * Нам отсюда по факту-то нужен только userId))
-     */
-    const userData = await this.usersService.fetchUserData({
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-    });
-    /**
-     * Большая объяснялка для читающего этот код
-     * У нас есть 2 типа токенов (именно тут)
-     * 1) Токены дискорда для получения инфы. Как-либо шифровать их нет смысла, если нас взломают, люди получат информацию херни
-     * 2) Наши токены для авторизации, того же типа, что и у дискорда, но это доступ к нашему серверу - хешируем
-     *
-     */
-    const authTokens = await this.getTokens({
-      userId: userData.id,
-    });
-    /**
-     * createOrUpdate
-     * Если есть пользователь - обновить
-     * Нет - создать
-     * Логично
-     */
-
-    const encryptedRefresh = this.encrypt(authTokens.refreshToken)
-    return await Promise.allSettled([
+       * Обмениваем код на 2 токена
+       * Refresh и Access
+       * P.s. код это то, что в ссылке
+       * аля ?code=цифрыбуквыит.д.клейпидорас
+       * и вот это обмениваем
+       */
+      const tokens = await this.fetchTokens(code);
       /**
-       * Посылаем токены НАШЕГО сервиса человеку в куки. Получить инфу по юзеру можно будет через 1 из наших токенов для получения других токенов для дс API
+       * Нам отсюда по факту-то нужен только userId))
+       */
+      const userData = await this.usersService.fetchUserData({
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      });
+      /**
+       * Большая объяснялка для читающего этот код
+       * У нас есть 2 типа токенов (именно тут)
+       * 1) Токены дискорда для получения инфы. Как-либо шифровать их нет смысла, если нас взломают, люди получат информацию херни
+       * 2) Наши токены для авторизации, того же типа, что и у дискорда, но это доступ к нашему серверу - хешируем
+       *
+       */
+      const authTokens = await this.getTokens({
+        userId: userData.id,
+      });
+      /**
+       * createOrUpdate
+       * Если есть пользователь - обновить
+       * Нет - создать
+       * Логично
        */
 
-      res.cookie('accessToken', authTokens.accessToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 15 * 60 * 1000, // 15 минут
-      }),
+      return await Promise.allSettled([
+        /**
+         * Посылаем токены НАШЕГО сервиса человеку в куки. Получить инфу по юзеру можно будет через 1 из наших токенов для получения других токенов для дс API
+         */
 
-      res.cookie('refreshToken', encryptedRefresh, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-      }),
-      
-      this.usersService.createOrUpdate({
-        userId: userData.id,
-        tokens: {
-          accessToken: tokens.accessToken,
-          refreshToken: tokens.refreshToken,
-        },
-        refreshToken: encryptedRefresh,
-      }),
-      res.redirect(
-        `${process.env.FRONTEND_URL}`,
-      ),
-    ]);
-    }catch(err){
-      console.log(err)
+        res.cookie('accessToken', authTokens.accessToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 15 * 60 * 1000, // 15 минут
+        }),
+
+        res.cookie('refreshToken', authTokens.refreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+        }),
+
+        this.usersService.createOrUpdate({
+          userId: userData.id,
+          tokens: {
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
+          },
+          refreshToken: authTokens.refreshToken,
+        }),
+        res.redirect(`${process.env.FRONTEND_URL}`),
+      ]);
+    } catch (err) {
+      console.log(err);
     }
   }
 
   async exchangeRefreshToAccess(refreshToken: string) {
-    const decryptedToken = this.decrypt(refreshToken);
-    const jwtData = this.jwtService.verify(decryptedToken);
-    const user = (await this.usersService.findByUserId(
-      jwtData.userId,
-    )) as Users;
+    const user = await this.usersService.findByToken(refreshToken);
     if (!user) {
       throw new BadRequestException(`This user doesn't exits`);
+    }
+    const verifyToken = await this.jwtService.verify(refreshToken, {
+      secret: process.env.REFRESH_SECRET_KEY,
+    });
+    if (!verifyToken) {
+      throw new BadRequestException(`Invalid token`);
     }
     const tokens = await this.getTokens({ userId: user.userId });
     return { accessToken: tokens.accessToken };
   }
 
-  /**
-   * Могло бы понадобится гард
-   */
-  private encrypt(text: string): string {
-    const iv = crypto.randomBytes(16);
-    const cipher = crypto.createCipheriv(
-      'aes-256-cbc',
-      Buffer.from(String(process.env.CRYPTO_KEY).slice(0, 32)),
-      iv,
-    );
-    let encrypted = cipher.update(text);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-    return iv.toString('hex') + ':' + encrypted.toString('hex');
-  }
-  /**
-   * Могло бы понадобится гард
-   */
-  private decrypt(text: string): string {
-    const textParts = text.split(':');
-    const iv = Buffer.from(textParts.shift(), 'hex');
-    const encryptedText = Buffer.from(textParts.join(':'), 'hex');
-    const decipher = crypto.createDecipheriv(
-      'aes-256-cbc',
-      Buffer.from(String(process.env.CRYPTO_KEY).slice(0, 32)),
-      iv,
-    );
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
-  }
   /**
    *  Сборы пары accessToken и refreshToken для сбора информации о пользователе (DISCORD)
    */

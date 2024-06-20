@@ -22,6 +22,6 @@ import { ExistedGuildMiddleware } from 'src/api/common/middlewares/existedGuild.
 })
 export class GuildsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ExistedGuildMiddleware);
+    consumer.apply(ExistedGuildMiddleware).forRoutes(GuildsController);
   }
 }

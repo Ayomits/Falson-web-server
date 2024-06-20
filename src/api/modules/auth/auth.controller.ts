@@ -4,7 +4,7 @@ import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs/index';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import { IsServerOwnerGuard } from './guards/isServerOwner.guard';
+import { IsAuthGuard } from './guards/isAuth.guard';
 
 /**
  * Публичный контроллер
@@ -23,6 +23,12 @@ export class AuthController {
     return this.authService.login(res);
   }
 
+  @Post(`logout`)
+  @UseGuards(IsAuthGuard)
+  async logout(@Req() req: Request) {
+    return this.authService.logout(req)
+  }
+
   /**
    * Публичный эндпоинт
    */
@@ -33,6 +39,9 @@ export class AuthController {
 
   /**
    * Публичный эндпоинт
+   * body {
+   *  token: "e2e.unit.integration"
+   * }
    */
   @Post(`/token`)
   async getAccessByRefresh(@Body() token: { token: string }) {

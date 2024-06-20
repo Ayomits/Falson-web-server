@@ -9,7 +9,7 @@ export class ExistedGuildMiddleware implements NestMiddleware {
   constructor(
     @Inject(GuildsService) private guildService: GuildsService
   ) {}
-  async use(req: Request, res: Response, next: (error?: Error | any) => void) {
+  async use(req: any, res: Response, next: (error?: Error | any) => void) {
     const clientFetcher = new ClientFetcher(client)
     const guildId = req.params.guildId || req.body.guildId;
     const guildFromCache = clientFetcher.getGuildFromCache(guildId)

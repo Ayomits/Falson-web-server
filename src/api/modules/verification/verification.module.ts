@@ -22,6 +22,8 @@ import { ExistedGuildMiddleware } from 'src/api/common/middlewares/existedGuild.
 })
 export class VerificationModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ExistedGuildMiddleware)
+    consumer
+      .apply(ExistedGuildMiddleware)
+      .forRoutes(VerificationController); 
   }
 }

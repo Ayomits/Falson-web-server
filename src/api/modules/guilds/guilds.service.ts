@@ -135,8 +135,8 @@ export class GuildsService {
       throw new BadRequestException(`This guild doesn't exists`);
     }
     const guild = this.clientFetch.getGuildFromCache(guildId);
-    const sortedUsers = users.map((user) => {
-      const userFromGuild = guild.members.cache.get(user);
+    const sortedUsers = users.map((role) => {
+      const userFromGuild = guild.roles.cache.get(role);
       if (!userFromGuild) {
         return;
       }

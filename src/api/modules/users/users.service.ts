@@ -5,7 +5,11 @@ import { Model } from 'mongoose';
 import { Cache } from '@nestjs/cache-manager';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
-import { JwtPayload, UserGuild, UserValidGuild } from 'src/api/common/types/base.types';
+import {
+  JwtPayload,
+  UserGuild,
+  UserValidGuild,
+} from 'src/api/common/types/base.types';
 import { hasAdminPermission } from 'src/api/common/functions/isAdmin';
 
 import axios from 'axios';
@@ -49,7 +53,10 @@ export class UsersService {
     throw new BadRequestException(`This user doesn't exists`);
   }
 
-  async findUserGuilds(userId: string, count: number = 0): Promise<UserGuild[]> {
+  async findUserGuilds(
+    userId: string,
+    count: number = 0,
+  ): Promise<UserGuild[]> {
     const user = (await this.findByUserId(userId)) as Users;
     if (!user) {
       throw new BadRequestException(`This user doesn't exists`);
@@ -57,19 +64,26 @@ export class UsersService {
     const { accessToken, refreshToken } = user.tokens;
     if (count < 3) {
       try {
+        const guildFromCache = (await this.cacheManager.get(
+          `${userId}-guilds`,
+        )) as UserGuild[];
+        if (guildFromCache) {
+          return guildFromCache;
+        }
         const guilds = await this.fetchUserGuilds(userId, {
           accessToken,
           refreshToken,
         });
+        this.cacheManager.set(`${userId}-guilds`, guilds, 10_000);
         return guilds;
       } catch {
-        return await this.findUserGuilds(userId, count + 1);
+        return this.findUserGuilds(userId, count + 1);
       }
     }
     throw new BadRequestException(`Discord rate limits`);
   }
   async ownersAndAdminsGuild(req: Request): Promise<UserValidGuild[]> {
-    const user = req.user as JwtPayload
+    const user = req.user as JwtPayload;
     const cacheKey = `${user.userId}-guilds`;
     const cachedGuilds = await this.cacheManager.get<UserGuild[]>(cacheKey);
     const guilds =
@@ -79,33 +93,66 @@ export class UsersService {
       throw new BadRequestException(`This user has no guilds`);
     }
 
-    // Асинхронная проверка всех гильдий параллельно
-    const sortedGuilds = await Promise.all(
-      guilds.map(async (guild) => {
-        if (hasAdminPermission(guild.permissions) || guild.owner) {
-          const guildFromCache = this.clientFetcher.getGuildFromCache(guild.id);
-          if (!guildFromCache) {
-            return {
-              guildId: guild.id,
-              icon: guild.icon,
-              name: guild.name,
-              invited: false,
-            };
-          } else {
-            return {
-              guildId: guild.id,
-              icon: guild.icon,
-              name: guildFromCache?.iconURL(),
-              invited: true,
-            };
-          }
+    const sortedGuilds = [];
+    for await (const guild of guilds) {
+      if (hasAdminPermission(guild.permissions) || guild.owner) {
+        const guildFromCache = this.clientFetcher.getGuildFromCache(guild.id);
+        if (!guildFromCache) {
+          sortedGuilds.push({
+            guildId: guild.id,
+            icon: guild.icon,
+            name: guild.name,
+            invited: false,
+          });
+        } else {
+          sortedGuilds.push({
+            guildId: guild.id,
+            icon: guild.icon,
+            name: guildFromCache?.iconURL(),
+            invited: true,
+          });
         }
-        return null;
-      }),
-    );
+      }
+    }
 
-    // Удаляем null значения, которые не прошли фильтр
-    return sortedGuilds.filter((guild) => guild !== null) as UserValidGuild[];
+    return sortedGuilds
+  }
+
+  async fetchUserGuilds(
+    userId: string,
+    tokens: { accessToken: string; refreshToken: string },
+  ) {
+    try {
+      const headers = {
+        Authorization: `Bearer ${tokens.accessToken}`,
+        'Content-Type': 'application/json',
+      };
+
+      const query = await axios.get(
+        'https://discord.com/api/users/@me/guilds',
+        { headers },
+      );
+      return query.data;
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        // Access token is invalid or expired, refresh it
+        const newTokens = await this.fetchAccessTokenByRefresh(
+          tokens.refreshToken,
+        );
+
+        return await Promise.all([
+          await this.userModel.updateOne({
+            userId: userId,
+            tokens: {
+              accessToken: newTokens.accessToken,
+              refreshToken: newTokens.refreshToken,
+            },
+          }),
+          this.fetchUserGuilds(userId, newTokens),
+        ]);
+      }
+      throw new BadRequestException(err.message);
+    }
   }
 
   /**
@@ -213,42 +260,6 @@ export class UsersService {
     }
   }
 
-  async fetchUserGuilds(
-    userId: string,
-    tokens: { accessToken: string; refreshToken: string },
-  ) {
-    try {
-      const headers = {
-        Authorization: `Bearer ${tokens.accessToken}`,
-        'Content-Type': 'application/json',
-      };
-
-      const query = await axios.get(
-        'https://discord.com/api/users/@me/guilds',
-        { headers },
-      );
-      return query.data;
-    } catch (err) {
-      if (err.response && err.response.status === 401) {
-        // Access token is invalid or expired, refresh it
-        const newTokens = await this.fetchAccessTokenByRefresh(
-          tokens.refreshToken,
-        );
-
-        return await Promise.all([
-          await this.userModel.updateOne({
-            userId: userId,
-            tokens: {
-              accessToken: newTokens.accessToken,
-              refreshToken: newTokens.refreshToken,
-            },
-          }),
-          this.fetchUserGuilds(userId, newTokens),
-        ]);
-      }
-      throw new BadRequestException(err.message);
-    }
-  }
   /**
    * Скорее всего юзнётся для обычного апдейта через аутентификацию
    *

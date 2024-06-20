@@ -20,7 +20,7 @@ export class ReadyEvent extends EventStructure {
       }
       client.user.setActivity({
         type: ActivityType.Playing,
-        name: `С ${membersCount} участниками и ${guilds.size} серверами`,
+        name: `с ${membersCount} участниками и ${guilds.size} серверами`,
       });
     };
     await status()

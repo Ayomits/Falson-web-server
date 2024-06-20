@@ -7,6 +7,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
+export const PremiumStatus = (status: number) =>
+  SetMetadata('premiumStatus', status);
+
 @Injectable()
 export class PremiumStatusGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
@@ -17,20 +20,19 @@ export class PremiumStatusGuard implements CanActivate {
       context.getHandler(),
     );
     const request = context.switchToHttp().getRequest();
-    try {
-      if (request.guild.premiumStatus >= requiredPremiumStatus) {
-        return true;
-      }
-      throw new ForbiddenException(
-        `Missing access. Required premium lvl: ${requiredPremiumStatus}`,
-      );
-    } catch {
-      throw new ForbiddenException(
-        `Missing access. Required premium lvl: ${requiredPremiumStatus}`,
-      );
+    
+    if (!request.guild) {
+      throw new ForbiddenException('Guild not found in request.');
     }
+
+    const guildPremiumStatus = request.guild.premiumStatus
+
+    if (guildPremiumStatus >= requiredPremiumStatus) {
+      return true;
+    }
+    
+    throw new ForbiddenException(
+      `Missing access. Required premium lvl: ${requiredPremiumStatus}`,
+    );
   }
 }
-
-export const PremiumStatus = (status: number) =>
-  SetMetadata(`premiumStatus`, status);
