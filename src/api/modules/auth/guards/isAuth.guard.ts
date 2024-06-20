@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Inject,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -32,7 +33,8 @@ export class IsAuthGuard implements CanActivate {
       request.user = user
       return true
     } catch (err) {
-      throw new UnauthorizedException(`Unauthorized 401`);
+      console.log(err)
+      throw new InternalServerErrorException(err)
     }
   }
 }
