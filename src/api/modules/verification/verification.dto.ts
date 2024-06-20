@@ -24,8 +24,11 @@ import {
 @Expose()
 export class SubChannelDto {
   @IsString()
+  @Expose()
   feedBacks?: string;
+
   @IsString()
+  @Expose()
   verifications?: string;
 }
 
@@ -33,9 +36,12 @@ export class SubChannelDto {
 @Expose()
 export class SubChannelsDto {
   @IsString({ each: true })
+  @Expose()
   @IsArray()
   category: string[];
+
   @IsString({ each: true })
+  @Expose()
   @IsArray()
   ignoredChannels: string[];
 }
@@ -44,22 +50,26 @@ export class SubChannelsDto {
 @Expose()
 export class SubRolesDto {
   @IsString({ each: true })
+  @Expose()
   @IsArray()
   curator?: string[];
+
   @IsString()
+  @Expose()
   support?: string;
 }
 
 @Exclude({ toClassOnly: true, toPlainOnly: true })
 @Expose()
 export class SubEmbedDto {
-  
   @IsString()
+  @Expose()
   @IsUrl()
   url?: string;
 
   @IsString()
   @MinLength(1)
+  @Expose()
   @MaxLength(128)
   value: string;
 }
@@ -67,36 +77,47 @@ export class SubEmbedDto {
 export class EmbedDto {
   @Expose()
   @IsString()
+  @Expose()
   @MinLength(1)
   title: string;
 
   @IsString()
+  @Expose()
   @MinLength(1)
   description: string;
 
   @IsString()
+  @Expose()
   @MinLength(1)
   thumbnail?: string;
 
   @IsString()
+  @Expose()
   @MinLength(1)
   color: `#${string}`;
 
   @IsString()
+  @Expose()
   @MinLength(1)
   @IsUrl()
   image?: string;
 
   @ValidateNested()
+  @Expose()
   @Type(() => SubEmbedDto)
   author?: SubEmbedDto;
+
   @ValidateNested()
+  @Expose()
   @Type(() => SubEmbedDto)
   footer?: SubEmbedDto;
 }
 
 @Exclude()
 export class RolesDto {
+  @Expose()
+  @IsArray()
+  @IsString({ each: true })
   roles: string[];
 }
 @Exclude()
@@ -123,10 +144,14 @@ export class EmbedsDto {
 }
 
 export class ChangeVerificationTypeDto {
+  @Expose()
+  @IsNumber()
   verificationType: number;
 }
 
 export class VerificationLogsDto {
+  @Expose()
+  @ValidateNested()
   verificationLogs: {
     feedBacks: string;
     verifications: string;
@@ -135,6 +160,8 @@ export class VerificationLogsDto {
 }
 
 export class VoiceVerificationChannelsDto {
+  @Expose()
+  @ValidateNested()
   voiceVerificationChannels?: {
     category: ChannelIds;
     ignoredChannels: ChannelIds;
@@ -142,16 +169,21 @@ export class VoiceVerificationChannelsDto {
 }
 
 export class VoiceVerificationStaffRolesDto {
+  @Expose()
   curator?: RoleIds; // те кто могут добавлять новых саппортов
+  @Expose()
   support?: RoleId; // те кто являются саппортами
 }
 
 export class VerificationRoles {
   @IsString({ each: true })
+  @Expose()
   roles: string[];
 }
 
 export class LanguagesDto {
+  @IsString()
+  @Expose()
   language: LanguagesType;
 }
 
@@ -162,14 +194,18 @@ export class LanguagesDto {
 @Exclude()
 export class CreateVerificationDto {
   @IsString()
-  guildId: string;
+  @IsOptional()
+  @Expose()
+  guildId?: string;
 
   @IsOptional()
   @IsNumber()
+  @Expose()
   verificationType?: number;
 
   @IsOptional()
   @ValidateNested()
+  @Expose()
   verificationLogs?: SubChannelDto;
 
   @IsOptional()
@@ -192,19 +228,21 @@ export class CreateVerificationDto {
 
   @IsOptional()
   @IsString()
+  @Expose()
   @IsIn(validLanguages) // Предположим, что validLanguages содержит массив доступных языков
   language?: string;
 
   @IsOptional()
   @IsArray()
+  @Expose()
   @IsString({ each: true })
   verificationRoles?: string[];
 
   @IsOptional()
   @IsBoolean()
+  @Expose()
   doubleVerification?: boolean;
 }
-
 
 export class UpdateVerificationDto extends PartialType(CreateVerificationDto) {
   @IsString()

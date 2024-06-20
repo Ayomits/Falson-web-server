@@ -1,5 +1,13 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { CreateVerificationDto } from './verification.dto';
+import {
+  CreateVerificationDto,
+  EmbedDto,
+  SubChannelDto,
+  SubChannelsDto,
+  SubRolesDto,
+  VerificationLogsDto,
+  VoiceVerificationStaffRolesDto,
+} from './verification.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Verification } from './verification.schema';
 import { Model } from 'mongoose';
@@ -8,15 +16,13 @@ import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
 import { GuildsService } from '../guilds/guilds.service';
 import {
-  EmbedType,
   LanguagesEnum,
-  PremiumEnum,
   validLanguages,
   VerificationType,
 } from 'src/api/common/types/base.types';
 import { defaultEmbeds } from 'src/api/common/types/defaultEmbeds';
-import { plainToInstance } from 'class-transformer';
-import { getAllProperties } from 'src/api/common/functions/classProperties';
+import { clearUsedFields, validateProperties } from 'src/api/common/functions/validateProperties';
+import _, { set } from 'lodash';
 
 @Injectable()
 export class VerificationService {
@@ -84,17 +90,28 @@ export class VerificationService {
     guildId: string,
     dto: Partial<CreateVerificationDto>,
   ) {
-    const [settings] = await Promise.all([this.findByGuildId(guildId)]);
+    const transormatedDto = validateProperties<CreateVerificationDto>(
+      {
+        voiceVerificationStaffRoles: SubRolesDto,
+        verificationLogs: SubChannelDto,
+        tradionVerificationEmbed: EmbedDto,
+        voiceVerificationChannels: SubChannelsDto,
+      },
+      dto,
+      CreateVerificationDto,
+    ) as any;
+    const [settings] = (await Promise.all([
+      this.findByGuildId(guildId),
+    ])) as any;
+    const cleared = clearUsedFields(transormatedDto, settings)
     const newVerification = await this.verificationModel
       .findByIdAndUpdate(
         (settings as any)._id,
         {
-          $set: {
-            ...dto,
-            guildId: dto.guildId,
-          },
+          ...cleared,
+          guildId: dto.guildId,
         },
-        { new: true },
+        {new: true}
       )
       .exec();
     await this.cacheManager.set(`verification-${guildId}`, newVerification);

@@ -25,7 +25,7 @@ export class GuildCreate extends EventStructure {
 
         {
           name: `> Количество участников`,
-          value: '```' + guild.members.cache.size + '```',
+          value: '```' + (await guild.fetch()).memberCount + '```',
         },
         {
           name: `> Создан`,
@@ -38,7 +38,7 @@ export class GuildCreate extends EventStructure {
         guildId: guild.id,
       }),
       await channel.send({
-        embeds: [],
+        embeds: [embed],
       }),
     ]);
   }

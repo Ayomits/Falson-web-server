@@ -88,6 +88,7 @@ export class GuildsService {
       {
         ...newGuild,
         premiumStatus: premiumStatus,
+        bugHunter: bugHunter
       },
     );
     await this.cacheManager.set(guildId, updatedGuild); // Обновляем кеш после обновления данных в базе данных
