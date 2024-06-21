@@ -1,7 +1,7 @@
-import { Guilds, GuildsSchema } from 'src/api/modules/guilds/guilds.schema';
+import { Guilds, GuildsSchema } from 'src/api/modules/guilds-settings/guilds.schema';
 import { INestApplicationContext } from '@nestjs/common';
 import { Client } from 'discord.js';
-import { GuildsService } from 'src/api/modules/guilds/guilds.service';
+import { GuildSettingsService } from 'src/api/modules/guilds-settings/guilds.service';
 import { PremiumEnum } from 'src/api/common/types/base.types';
 import mongoose, { Model } from 'mongoose';
 import { VerificationService } from 'src/api/modules/verification/verification.service';
@@ -15,7 +15,7 @@ export class ReadySerivice {
     this.app = app;
   }
   async collectAllGuilds() {
-    const guildsService = this.app.get(GuildsService);
+    const guildsService = this.app.get(GuildSettingsService);
     const verificationService = this.app.get(VerificationService);
     const [allGuidls, verifications] = await Promise.all([
       guildsService.findAll(),

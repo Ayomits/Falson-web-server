@@ -3,7 +3,7 @@ import { VerificationService } from './verification.service';
 import { VerificationController } from './verification.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Verification, VerificationSchema } from './verification.schema';
-import { GuildsModule } from '../guilds/guilds.module';
+import { GuildsSettinsModule } from '../guilds-settings/guilds.module';
 import { AuthModule } from '../auth/auth.module';
 import { ExistedGuildMiddleware } from 'src/api/common/middlewares/existedGuild.middleware';
 
@@ -13,7 +13,7 @@ import { ExistedGuildMiddleware } from 'src/api/common/middlewares/existedGuild.
     MongooseModule.forFeature([
       { name: Verification.name, schema: VerificationSchema },
     ]),
-    GuildsModule,
+    GuildsSettinsModule,
     AuthModule
   ],
   controllers: [VerificationController],

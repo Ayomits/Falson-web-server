@@ -3,11 +3,14 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './modules/users/users.module';
-import { GuildsModule } from './modules/guilds/guilds.module';
+import { GuildsSettinsModule } from './modules/guilds-settings/guilds.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CustomCacheInterceptor } from './interceptors/cache.interceptor';
 import { VerificationModule } from './modules/verification/verification.module';
+import { StatsModule } from './modules/stats/stats.module';
+import { Guilds } from './modules/guilds-settings/guilds.schema';
+import { DiscordModule } from 'src/discord/discord.module';
 
 @Module({
   imports: [
@@ -27,8 +30,11 @@ import { VerificationModule } from './modules/verification/verification.module';
       }),
     }),
     UsersModule,
-    GuildsModule,
+    GuildsSettinsModule,
+    Guilds,
     VerificationModule,
+    StatsModule,
+    DiscordModule,
   ],
   controllers: [],
   providers: [

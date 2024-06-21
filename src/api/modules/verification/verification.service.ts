@@ -14,7 +14,7 @@ import { Model } from 'mongoose';
 import { Cache } from '@nestjs/cache-manager';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
-import { GuildsService } from '../guilds/guilds.service';
+import { GuildSettingsService } from '../guilds-settings/guilds.service';
 import {
   LanguagesEnum,
   validLanguages,
@@ -31,7 +31,6 @@ export class VerificationService {
     @InjectModel(Verification.name)
     private verificationModel: Model<Verification>,
     private cacheManager: Cache,
-    @Inject(GuildsService) private guildService: GuildsService,
   ) {}
   /**
    *

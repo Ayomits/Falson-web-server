@@ -2,12 +2,12 @@ import { BadRequestException, Inject, NestMiddleware } from "@nestjs/common";
 import { Request, Response } from "express";
 import { client } from 'src/discordjs';
 import { ClientFetcher } from "../functions/clientFetcher.class";
-import { GuildsService } from "src/api/modules/guilds/guilds.service";
-import { Guilds } from "src/api/modules/guilds/guilds.schema";
+import { GuildSettingsService } from "src/api/modules/guilds-settings/guilds.service";
+import { Guilds } from "src/api/modules/guilds-settings/guilds.schema";
 
 export class ExistedGuildMiddleware implements NestMiddleware {
   constructor(
-    @Inject(GuildsService) private guildService: GuildsService
+    @Inject(GuildSettingsService) private guildService: GuildSettingsService
   ) {}
   async use(req: any, res: Response, next: (error?: Error | any) => void) {
     const clientFetcher = new ClientFetcher(client)

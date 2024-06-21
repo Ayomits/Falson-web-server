@@ -9,7 +9,7 @@ import { IsAuthGuard } from './guards/isAuth.guard';
 import { IsBotGuard } from './guards/isBot.guard';
 import { IsServerOwnerGuard } from './guards/isServerOwner.guard';
 import { IsWhiteListGuard } from './guards/IsWhiteList.guard';
-import { GuildsModule } from '../guilds/guilds.module';
+import { GuildsSettinsModule } from '../guilds-settings/guilds.module';
 import { PremiumStatusGuard } from './guards/premiumStatus.guard';
 
 @Module({
@@ -20,7 +20,7 @@ import { PremiumStatusGuard } from './guards/premiumStatus.guard';
         expiresIn: `10s`,
       },
     }),
-    forwardRef(() => GuildsModule),
+    forwardRef(() => GuildsSettinsModule),
   ],
   controllers: [AuthController],
   providers: [
@@ -37,6 +37,7 @@ import { PremiumStatusGuard } from './guards/premiumStatus.guard';
     IsAuthGuard,
     IsBotGuard,
     IsServerOwnerGuard,
+    GuildsSettinsModule,
     IsWhiteListGuard,
     PremiumStatusGuard,
     JwtModule,

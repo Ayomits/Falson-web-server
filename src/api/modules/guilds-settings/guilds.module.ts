@@ -5,7 +5,7 @@ import {
   NestModule,
 } from '@nestjs/common';
 import { GuildsController } from './guilds.controller';
-import { GuildsService } from './guilds.service';
+import { GuildSettingsService } from './guilds.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Guilds, GuildsSchema } from './guilds.schema';
 import { AuthModule } from '../auth/auth.module';
@@ -17,10 +17,10 @@ import { ExistedGuildMiddleware } from 'src/api/common/middlewares/existedGuild.
     forwardRef(() => AuthModule),
   ],
   controllers: [GuildsController],
-  providers: [GuildsService],
-  exports: [GuildsModule, GuildsService, MongooseModule],
+  providers: [GuildSettingsService],
+  exports: [GuildsSettinsModule, GuildSettingsService, MongooseModule],
 })
-export class GuildsModule implements NestModule {
+export class GuildsSettinsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(ExistedGuildMiddleware).forRoutes(GuildsController);
   }

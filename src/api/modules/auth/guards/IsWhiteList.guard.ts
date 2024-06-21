@@ -7,16 +7,15 @@ import {
 import { UsersService } from '../../users/users.service';
 import { Request } from 'express';
 import { JwtPayload } from 'src/api/common/types/base.types';
-import { GuildsService } from '../../guilds/guilds.service';
-import { Guilds } from '../../guilds/guilds.schema';
+import { GuildSettingsService } from '../../guilds-settings/guilds.service';
+import { Guilds } from '../../guilds-settings/guilds.schema';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
 import { Guild } from 'discord.js';
 
 export class IsWhiteListGuard implements CanActivate {
   constructor(
-    @Inject(UsersService) private userService: UsersService,
-    @Inject(GuildsService) private guildService: GuildsService,
+    @Inject(GuildSettingsService) private guildService: GuildSettingsService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

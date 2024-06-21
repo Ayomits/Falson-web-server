@@ -13,7 +13,7 @@ import { client } from 'src/discordjs';
 import { GuildDto } from './dto/guilds.dto';
 
 @Injectable()
-export class GuildsService {
+export class GuildSettingsService {
   clientFetch: ClientFetcher = new ClientFetcher(client);
   constructor(
     @InjectModel(Guilds.name) private guildsModel: Model<Guilds>,

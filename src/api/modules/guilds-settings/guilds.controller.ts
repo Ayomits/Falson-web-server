@@ -11,17 +11,17 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { GuildsService } from './guilds.service';
+import { GuildSettingsService } from './guilds.service';
 import { Guilds } from './guilds.schema';
-import { ExistedGuildInterceptor } from 'src/api/interceptors/existedGuild.interceptor';
 import { GuildDto, GuildUsersDto } from './dto/guilds.dto';
 import { IsBotGuard } from '../auth/guards/isBot.guard';
-import { IsServerOwnerGuard } from '../auth/guards/isServerOwner.guard';
 import { IsAuthGuard } from '../auth/guards/isAuth.guard';
+import { MergedIsOwner } from '../auth/guards/merged/mergedIsOwner.guard';
+import { MergedIsWhiteList } from '../auth/guards/merged/mergedIsWhiteList.guard';
 
-@Controller('guilds')
+@Controller('guilds-settings')
 export class GuildsController {
-  constructor(@Inject(GuildsService) private guildService: GuildsService) {}
+  constructor(@Inject(GuildSettingsService) private guildService: GuildSettingsService) {}
 
   /**
    * Get доступен всегда и любому
@@ -30,6 +30,7 @@ export class GuildsController {
    * @returns
    */
   @Get(':guildId')
+  @UseGuards(MergedIsWhiteList)
   findGuild(@Param('guildId') guildId: string) {
     return this.guildService.findByGuildId(guildId);
   }
@@ -60,18 +61,17 @@ export class GuildsController {
    * ТОЛЬКО ПУТ ЗАПРОСЫ И НИЧЕГО БОЛЕЕ
    * ПРОЕБАЛСЯ ФРОНТ - ИДУТ ВСЕ НАХУЙ!!
    */
-  @Put(':guildId/users/set')
+  @Put(':guildId/panel/set')
   /**
    *
    * Гарда isServerOwner
    */
-  @UseGuards()
-  @UseGuards(IsAuthGuard, IsServerOwnerGuard)
+  @UseGuards(IsAuthGuard, MergedIsOwner)
   async setUsers(
     @Param('guildId') guildId: string,
     @Body() users: GuildUsersDto,
   ) {
-    return await this.guildService.setUsers(guildId, users.users);
+    return this.guildService.setUsers(guildId, users.users);
   }
 
   @Delete(`:guildId`)
