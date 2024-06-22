@@ -23,10 +23,8 @@ export class IsAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest() as Request;
     try {
-      const headers = request.headers
-      const authorization = headers.authorization
-      const token = authorization.split(' ')[1]
-      const user = await this.jwtService.verify(token, {secret: process.env.ACCESS_SECRET_KEY})
+      const accessToken = request.cookies.accessToken
+      const user = await this.jwtService.verify(accessToken, {secret: process.env.ACCESS_SECRET_KEY})
       if (!user){
         return false
       }

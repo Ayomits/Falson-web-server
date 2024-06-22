@@ -10,7 +10,7 @@ import { CustomCacheInterceptor } from './interceptors/cache.interceptor';
 import { VerificationModule } from './modules/verification/verification.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { Guilds } from './modules/guilds-settings/guilds.schema';
-import { DiscordModule } from 'src/discord/discord.module';
+import { DiscordModule } from 'src/api/modules/discord/discord.module';
 
 @Module({
   imports: [

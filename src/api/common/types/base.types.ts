@@ -13,6 +13,7 @@ export enum PremiumEnum {
   Donater = 1,
   MiddleDonater = 2,
   Sponsor = 3,
+  Developer = 4,
 }
 
 export enum VerificationType {

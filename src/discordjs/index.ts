@@ -1,10 +1,25 @@
 import { NestFactory } from '@nestjs/core';
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, Options } from 'discord.js';
 import { AppModule } from 'src/api/app.module';
 import EventCollector from './events/events.collector';
 
-export const client = new Client({
-  intents: [GatewayIntentBits.GuildMembers, GatewayIntentBits.Guilds],
+const intents = [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers];
+
+export const client: Client = new Client({
+  intents: intents,
+  makeCache: Options.cacheWithLimits({
+    ...Options.DefaultMakeCacheSettings,
+    ReactionManager: 0,
+    MessageManager: 0,
+    DMMessageManager: 0,
+    GuildInviteManager: 0,
+    GuildEmojiManager: 0,
+    GuildBanManager: 0,
+    GuildMessageManager: 0,
+    GuildTextThreadManager: 0,
+    GuildScheduledEventManager: 0,
+  }),
+  
 });
 export async function getApp() {
   return await NestFactory.createApplicationContext(AppModule);

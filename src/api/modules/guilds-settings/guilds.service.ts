@@ -10,7 +10,8 @@ import {
 } from 'src/api/common/types/base.types';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
-import { GuildDto } from './dto/guilds.dto';
+import { GuildDto, LanguagesDto } from './dto/guilds.dto';
+import { validateProperties } from 'src/api/common/functions/validateProperties';
 
 @Injectable()
 export class GuildSettingsService {
@@ -65,7 +66,6 @@ export class GuildSettingsService {
       throw new BadRequestException(`This guild does not exists`);
     }
     let premiumStatus;
-    let bugHunter;
     /**
      * Тут говнокод на самом деле, но похуй
      * Мб позже исправлю
@@ -77,23 +77,24 @@ export class GuildSettingsService {
     if (newGuild.premiumStatus > PremiumEnum.Sponsor) {
       premiumStatus = PremiumEnum.Sponsor;
     }
-    if (newGuild.bugHunter < BugHunterType.NoBugHunter) {
-      bugHunter = BugHunterType.NoBugHunter;
-    }
-    if (newGuild.bugHunter > BugHunterType.GoldBugHunter) {
-      bugHunter = BugHunterType.GoldBugHunter;
-    }
+
+    const cleanedDto = validateProperties({}, newGuild, GuildDto);
     const updatedGuild = await this.guildsModel.findOneAndUpdate(
       { guildId: guildId },
       {
-        ...newGuild,
+        ...cleanedDto,
         premiumStatus: premiumStatus,
-        bugHunter: bugHunter
       },
+      { new: true },
     );
     await this.cacheManager.set(guildId, updatedGuild); // Обновляем кеш после обновления данных в базе данных
     return updatedGuild;
   }
+
+  async updateLanguage(guildId: string, dto: LanguagesDto) {
+    return this.updateOne(guildId, { ...dto } as any);
+  }
+
   async insertMany(docs: Guilds[]) {
     return await this.guildsModel.insertMany(docs);
   }

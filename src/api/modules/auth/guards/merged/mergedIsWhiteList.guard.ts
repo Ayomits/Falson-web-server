@@ -10,7 +10,7 @@ export class MergedIsWhiteList implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const isWhite = new IsWhiteListGuard(this.guildService);
     const isBot = new IsBotGuard();
-    const flags = await Promise.all([isWhite.canActivate(context), isBot]);
+    const flags = await Promise.all([isWhite.canActivate(context), isBot.canActivate(context)]);
     return flags.includes(true);
   }
 }

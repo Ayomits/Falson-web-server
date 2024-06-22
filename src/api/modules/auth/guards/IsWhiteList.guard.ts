@@ -22,10 +22,10 @@ export class IsWhiteListGuard implements CanActivate {
     const request = context.switchToHttp().getRequest() as Request;
     try {
       const clientFetcher = new ClientFetcher(client);
-      const user = request.user as JwtPayload;
+      const user = request?.user as JwtPayload;
       const guildId = request.params.guildId || request.body.guildId;
       const guild = clientFetcher.getGuildFromCache(guildId) as Guild;
-      const member = await guild.members.fetch(user.userId);
+      const member = await guild.members.fetch(user?.userId);
       const guildFromDb = (await this.guildService.findByGuildId(
         guildId,
       )) as Guilds;

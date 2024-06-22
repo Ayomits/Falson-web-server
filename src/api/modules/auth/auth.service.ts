@@ -64,12 +64,6 @@ export class AuthService {
     return res.redirect(this.generateLoginDiscordLink());
   }
 
-  logout(req: Request) {
-    this.usersService.updateOne((req.user as any).userId, { refreshToken: null });
-    return {
-      message: `Ok`
-    }
-  }
   /**
    * Обработка колбэка и авторизация пользователя
    */
@@ -134,8 +128,8 @@ export class AuthService {
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken,
           },
-          refreshToken: authTokens.refreshToken,
         }),
+
         res.redirect(`${process.env.FRONTEND_URL}`),
       ]);
     } catch (err) {
@@ -143,19 +137,25 @@ export class AuthService {
     }
   }
 
-  async exchangeRefreshToAccess(refreshToken: string) {
-    const user = await this.usersService.findByToken(refreshToken);
-    if (!user) {
-      throw new BadRequestException(`This user doesn't exits`);
-    }
-    const verifyToken = await this.jwtService.verify(refreshToken, {
-      secret: process.env.REFRESH_SECRET_KEY,
-    });
+  async exchangeRefreshToAccess(req: Request, res: Response) {
+    const verifyToken = (await this.jwtService.verify(
+      req.cookies.refreshToken,
+      {
+        secret: process.env.REFRESH_SECRET_KEY,
+      },
+    )) as JwtPayload;
+
     if (!verifyToken) {
       throw new BadRequestException(`Invalid token`);
     }
-    const tokens = await this.getTokens({ userId: user.userId });
-    return { accessToken: tokens.accessToken };
+    const tokens = await this.getTokens({ userId: verifyToken.userId });
+
+    return res.cookie('accessToken', tokens.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 минут
+    });
   }
 
   /**

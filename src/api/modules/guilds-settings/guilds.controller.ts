@@ -13,15 +13,20 @@ import {
 } from '@nestjs/common';
 import { GuildSettingsService } from './guilds.service';
 import { Guilds } from './guilds.schema';
-import { GuildDto, GuildUsersDto } from './dto/guilds.dto';
-import { IsBotGuard } from '../auth/guards/isBot.guard';
-import { IsAuthGuard } from '../auth/guards/isAuth.guard';
-import { MergedIsOwner } from '../auth/guards/merged/mergedIsOwner.guard';
-import { MergedIsWhiteList } from '../auth/guards/merged/mergedIsWhiteList.guard';
+import { GuildDto, GuildUsersDto, LanguagesDto } from './dto/guilds.dto';
+import { LanguagesEnum } from 'src/api/common/types/base.types';
+import {
+  MergedIsWhiteList,
+  IsBotGuard,
+  IsAuthGuard,
+  MergedIsOwner,
+} from 'src/api/modules/auth/guards';
 
 @Controller('guilds-settings')
 export class GuildsController {
-  constructor(@Inject(GuildSettingsService) private guildService: GuildSettingsService) {}
+  constructor(
+    @Inject(GuildSettingsService) private guildService: GuildSettingsService,
+  ) {}
 
   /**
    * Get доступен всегда и любому
@@ -33,6 +38,13 @@ export class GuildsController {
   @UseGuards(MergedIsWhiteList)
   findGuild(@Param('guildId') guildId: string) {
     return this.guildService.findByGuildId(guildId);
+  }
+
+  @Get(`available-language`)
+  async availableLanguages() {
+    return {
+      languages: [LanguagesEnum.English, LanguagesEnum.Russian],
+    };
   }
 
   /**
@@ -52,8 +64,17 @@ export class GuildsController {
    * Это чистый апдейт всего
    * Также для баг хантеров
    */
+  @UseGuards(IsBotGuard)
   async update(@Param('guildId') guildId: string, @Body() newGuild: Guilds) {
     return await this.guildService.updateOne(guildId, newGuild);
+  }
+
+  @Patch(`:guildId/language`)
+  async updateLanguage(
+    @Param('guildId') guildId: string,
+    @Body() dto: LanguagesDto,
+  ) {
+    return this.updateLanguage(guildId, dto);
   }
 
   /**

@@ -3,9 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './api/app.module';
 import { config } from 'dotenv';
 import { discordjsInitialize } from './discordjs';
-import axios from 'axios';
 import { ValidationPipe } from '@nestjs/common';
-import { CreateVerificationDto } from './api/modules/verification/verification.dto';
+import middleware from 'i18next-express-middleware';
+import i18n from './i18n';
 
 config();
 
@@ -22,6 +22,7 @@ async function bootstrap() {
 
     }),
   );
+  app.use(middleware.handle(i18n))
   await app.listen(3000).then(() => {
     console.log(`3000`);
   });

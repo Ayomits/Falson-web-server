@@ -90,16 +90,6 @@ export class Verification {
     support?: RoleId; // те кто являются саппортами
   };
 
-  @Prop({ type: String, default: LanguagesEnum.Russian })
-  /**
-   * English
-   * Український
-   * Русский
-   * Быдло
-   * Румынский
-   */
-  language: string;
-
   @Prop({type: Boolean, default: false})
   doubleVerification: boolean
 }

@@ -1,3 +1,4 @@
+import { Expose, Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 import { LanguagesType } from 'src/api/common/types/base.types';
 
@@ -11,14 +12,25 @@ export class GuildDto {
   @IsString({ each: true })
   canUsePanel?: string[];
 
-  @IsString()
-  language?: LanguagesType;
+  @Expose()
+  interfaceLanguage?: LanguagesType;
+
+  @Expose()
+  commandLanguage?: LanguagesType;
 
   @IsNumber()
-  bugHunter?: number
+  bugHunter?: number;
 }
 
 export class GuildUsersDto {
-  @IsString({each: true})
+  @IsString({ each: true })
   users: string[];
+}
+
+export class LanguagesDto {
+  @Expose()
+  interfaceLanguage: LanguagesType;
+
+  @Expose()
+  commandLanguage: LanguagesType;
 }

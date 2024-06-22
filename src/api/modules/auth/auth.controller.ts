@@ -1,10 +1,18 @@
-import { Body, Controller, Get, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
+import {
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { ClientFetcher } from 'src/api/common/functions/';
 
 import { client } from 'src/discordjs/index';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import { IsAuthGuard } from './guards/isAuth.guard';
+import { IsAuthGuard } from './guards';
 
 /**
  * Публичный контроллер
@@ -23,12 +31,6 @@ export class AuthController {
     return this.authService.login(res);
   }
 
-  @Post(`logout`)
-  @UseGuards(IsAuthGuard)
-  async logout(@Req() req: Request) {
-    return this.authService.logout(req)
-  }
-
   /**
    * Публичный эндпоинт
    */
@@ -44,7 +46,10 @@ export class AuthController {
    * }
    */
   @Post(`/token`)
-  async getAccessByRefresh(@Body() token: { token: string }) {
-    return await this.authService.exchangeRefreshToAccess(token.token);
+  async getAccessByRefresh(@Req() req: Request, @Res() res: Response) {
+    return await this.authService.exchangeRefreshToAccess(
+      req,
+      res
+    );
   }
 }

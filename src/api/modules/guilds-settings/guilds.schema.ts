@@ -1,5 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { BugHunterType, LanguagesEnum, RoleId } from 'src/api/common/types/base.types';
+import {
+  BugHunterType,
+  LanguagesEnum,
+  RoleId,
+} from 'src/api/common/types/base.types';
 
 @Schema()
 export class Guilds {
@@ -10,14 +14,23 @@ export class Guilds {
   premiumStatus?: number;
 
   /**
-   * Здесь будут хранится роли/пользователи
+   * Здесь будут хранится роли
    * Их айдишники
    */
   @Prop({ default: [] })
   canUsePanel?: string[];
-  
-  @Prop({default: BugHunterType.NoBugHunter})
-  bugHunter?: number
+
+  @Prop({ default: [] })
+  badges?: string[];
+
+  @Prop({ default: LanguagesEnum.English })
+  interfaceLanguage?: string;
+
+  @Prop({ default: LanguagesEnum.English })
+  commandLanguage?: string;
+
+  @Prop({ default: {}, type: Map })
+  commands?: Map<string, boolean>;
 }
 
 export const GuildsSchema = SchemaFactory.createForClass<Guilds>(Guilds);

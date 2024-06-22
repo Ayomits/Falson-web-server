@@ -16,11 +16,14 @@ import {
 import { VerificationService } from './verification.service';
 import { Request } from 'express';
 import { CreateVerificationDto } from './verification.dto';
-import { IsBotGuard } from '../auth/guards/isBot.guard';
-import { IsAuthGuard } from '../auth/guards/isAuth.guard';
-import { IsWhiteListGuard } from '../auth/guards/IsWhiteList.guard';
-import { PremiumStatus, PremiumStatusGuard } from '../auth/guards/premiumStatus.guard';
-import { PremiumEnum } from 'src/api/common/types/base.types';
+import {
+  IsWhiteListGuard,
+  IsAuthGuard,
+  IsBotGuard,
+  PremiumStatus,
+  PremiumStatusGuard,
+} from '../auth/guards/';
+import { PremiumEnum } from 'src/api/common/types/';
 
 @Controller('verifications')
 @UseGuards(PremiumStatusGuard)
@@ -80,16 +83,6 @@ export class VerificationController {
     return this.verificationService.defaultUpdateEmbeds(guildId, embed);
   }
 
-  @Patch(':guildId/verification-language')
-  @PremiumStatus(PremiumEnum.NoPrem)
-  @UseGuards(IsAuthGuard, IsWhiteListGuard)
-  async updateVerificationLanguage(
-    @Param('guildId') guildId: string,
-    @Body() dto: Partial<CreateVerificationDto>,
-  ) {
-    return this.verificationService.updateLanguage(guildId, dto);
-  }
-
   @Put(':guildId/verification-logs')
   @PremiumStatus(PremiumEnum.NoPrem)
   @UseGuards(IsAuthGuard, IsWhiteListGuard)
@@ -107,7 +100,10 @@ export class VerificationController {
     @Param('guildId') guildId: string,
     @Body() dto: Partial<CreateVerificationDto>,
   ) {
-    return this.verificationService.updateVerificationRoles(guildId, dto.verificationRoles);
+    return this.verificationService.updateVerificationRoles(
+      guildId,
+      dto.verificationRoles,
+    );
   }
 
   @Patch(':guildId/voice-verification-channels')
@@ -117,10 +113,7 @@ export class VerificationController {
     @Param('guildId') guildId: string,
     @Body() dto: Partial<CreateVerificationDto>,
   ) {
-    return this.verificationService.voiceVerificationChannels(
-      guildId,
-      dto,
-    );
+    return this.verificationService.voiceVerificationChannels(guildId, dto);
   }
 
   @Patch(':guildId/voice-verification-staff-roles')

@@ -13,7 +13,7 @@ import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
 import { Request } from 'express';
 import { JwtPayload } from 'src/api/common/types/base.types';
-import { IsAuthGuard } from '../auth/guards/isAuth.guard';
+import { IsAuthGuard } from '../auth/guards/';
 
 @Controller('users')
 @UseGuards(IsAuthGuard)
