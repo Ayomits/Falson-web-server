@@ -5,6 +5,7 @@ import {
 import { INestApplicationContext } from '@nestjs/common';
 import {
   Client,
+  Guild,
   REST,
   Routes,
   SlashCommandBuilder,
@@ -27,7 +28,23 @@ export class ReadySerivice {
     this.client = client;
     this.app = app;
   }
-  async commandRegister(guildId: string) {
+  async updateGuildCommands(allGuilds: any, exclude: string[]) {
+    const updates = [];
+
+    this.commandRegister('1160357823834751097', ['bot2']);
+    try {
+      await Promise.all(updates);
+      console.log('All guild commands updated successfully');
+    } catch (error) {
+      console.error('Error updating guild commands:', error);
+    }
+  }
+  /**
+   *
+   * @param guildId
+   * @param exclude - массив в котором хранятся ключи, что нужно перевести в false
+   */
+  async commandRegister(guildId: string, exclude: string[]) {
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
     const commands = collectCommands() as SlashComandType[];
     const service = this.app.get(GuildSettingsService);
@@ -62,7 +79,7 @@ export class ReadySerivice {
       slashCommands.push(commandBuilder);
     }
     const commandsMap = new Map<string, boolean>();
-    for (const command of slashCommands) {
+    const filtredSlashCommadns = slashCommands.filter((command) => {
       const subCommandGroup = command.options.find(
         (option) => option.toJSON().type === 2,
       );
@@ -71,23 +88,35 @@ export class ReadySerivice {
       );
 
       const commandName = `${command.name}${subCommandGroup ? ` ${subCommandGroup?.toJSON().name}` : ''}${subCommand ? ` ${subCommand.toJSON().name}` : ''}`;
-      if (guildFromDb.commands.has(commandName)) {
-        const commandFromDb = guildFromDb.commands.get(commandName);
-        commandsMap.set(commandName, commandFromDb);
-      } else {
-        commandsMap.set(commandName, true);
+
+      if (exclude.includes(commandName)) {
+        commandsMap.set(commandName, false)
+        return false
       }
-    }
+      if (guildFromDb.commands.has(commandName)) {
+        const commandFromDb = guildFromDb.commands.get(commandName)
+        commandsMap.set(commandName, commandFromDb)
+        if (!commandFromDb) {
+          return false
+        }
+      }else {
+        commandsMap.set(commandName, true)
+      }
+      return true
+    });
+
     try {
-      await service.updateOne(guildId, { commands: commandsMap });
-      await rest.put(
-        Routes.applicationGuildCommands(guildId, this.client.user.id),
-        {
-          body: slashCommands.map((command) => {
-            return command.toJSON();
-          }),
-        },
-      );
+      await Promise.allSettled([
+        service.updateOne(guildId, { commands: commandsMap }),
+        rest.put(
+          Routes.applicationGuildCommands(guildId, this.client.user.id),
+          {
+            body: filtredSlashCommadns.map((command) => {
+              return command.toJSON();
+            }),
+          },
+        ),
+      ]);
     } catch {}
   }
   async collectAllGuilds(_allGuilds: Guilds[]) {
