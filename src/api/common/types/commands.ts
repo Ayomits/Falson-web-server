@@ -1,34 +1,38 @@
-export enum CommandType {
-  Everyone = 0,
-  Donater = 1,
-  MiddleDonater = 2,
-  Sponsor = 3,
-  Developer = 4,
-}
+import {
+  SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
+  SlashCommandSubcommandGroupBuilder,
+} from 'discord.js';
 
-export enum ArgumentType {
-  User = 0,
-  String = 1,
-  Number = 2,
-  Channel = 3,
-  Role = 4,
-}
-
-export type Argument = {
+export type SubCommandType = {
   name: string;
   description: string;
-  required: boolean;
-  type: number;
-  maxLength?: number
-  minLength?: number
-};
-
-export type Command = {
-  name: string;
-  description: string;
-  args?: { [key: string]: Argument };
-  subcommands?: { [key: string]: Command };
+  builder: SlashCommandSubcommandBuilder;
   type: number;
 };
 
-export type CommandsTranslationType = { [key: string]: Command };
+export type SubCommandGroupType = {
+  name: string
+  builder: SlashCommandSubcommandGroupBuilder;
+  subcommands: SubCommandType[];
+  /**
+   * Тип для группы
+   */
+  type: number;
+};
+
+export type SlashCommand = {
+  /**
+   * Основной билдер из которого собирается команда
+   */
+  name: string;
+  description: string;
+  commandBuilder: SlashCommandBuilder;
+  /**
+   * Для всех, Подписчик 1 лвла, Подписчик 2 лвла, Подписчик 3 лвла
+   */
+  type: number;
+
+  groups?: SubCommandGroupType[];
+  subcommands?: SubCommandType[];
+};

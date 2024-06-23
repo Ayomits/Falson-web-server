@@ -4,8 +4,6 @@ import { AppModule } from './api/app.module';
 import { config } from 'dotenv';
 import { discordjsInitialize } from './discordjs';
 import { ValidationPipe } from '@nestjs/common';
-import middleware from 'i18next-express-middleware';
-import i18n from './i18n';
 
 config();
 
@@ -22,7 +20,7 @@ async function bootstrap() {
 
     }),
   );
-  app.use(middleware.handle(i18n))
+
   await app.listen(3000).then(() => {
     console.log(`3000`);
   });

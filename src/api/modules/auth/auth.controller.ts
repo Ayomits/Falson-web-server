@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/';
@@ -51,5 +52,11 @@ export class AuthController {
       req,
       res
     );
+  }
+
+  @Post(`/check-auth`)
+  @UseGuards(IsAuthGuard)
+  async checkAuth() {
+    return true
   }
 }

@@ -9,9 +9,7 @@ export class ReadyEvent extends EventStructure {
     const service = new ReadySerivice(client, app);
     const guildService = app.get(GuildSettingsService);
     const allGuilds = await guildService.findAll();
-    await Promise.all([
-      service.collectAllGuilds(allGuilds),
-      service.updateGuildCommands(client.guilds.cache, ["bot2"])
-    ]);
+    await service.collectAllGuilds(allGuilds)
+    await service.registerAllGuilds()
   }
 }

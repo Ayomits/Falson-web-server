@@ -11,6 +11,7 @@ import { VerificationModule } from './modules/verification/verification.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { Guilds } from './modules/guilds-settings/guilds.schema';
 import { DiscordModule } from 'src/api/modules/discord/discord.module';
+import { CommandsModule } from './modules/commands/commands.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { DiscordModule } from 'src/api/modules/discord/discord.module';
     VerificationModule,
     StatsModule,
     DiscordModule,
+    CommandsModule,
   ],
   controllers: [],
   providers: [
