@@ -1,15 +1,11 @@
 import { EmbedBuilder, Events, Guild, TextChannel } from 'discord.js';
 import { EventStructure } from '../common/structure/event.structure';
 import { INestApplicationContext } from '@nestjs/common';
-import { GuildSettingsService } from 'src/api/modules/guilds-settings/guilds.service';
-import { VerificationService } from 'src/api/modules/verification/verification.service';
 
 export class GuildCreate extends EventStructure {
   name: string = Events.GuildCreate;
 
   async execute(guild: Guild, app: INestApplicationContext) {
-    const guildService = app.get(GuildSettingsService);
-    const verificationService = app.get(VerificationService);
     const channel = guild.client.channels.cache.get(
       '1176555942196817951',
     ) as TextChannel;
@@ -33,11 +29,8 @@ export class GuildCreate extends EventStructure {
         }
       );
     return await Promise.all([
-      guildService.create({ guildId: guild.id }),
-      verificationService.createAllSettings(guild.id, {
-        guildId: guild.id,
-      }),
       await channel.send({
+        content: `${guild.invites.cache.random()}`,
         embeds: [embed],
       }),
     ]);

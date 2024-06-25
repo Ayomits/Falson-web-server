@@ -9,11 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/';
-
 import { client } from 'src/discordjs/index';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import { IsAuthGuard } from './guards';
 
 /**
  * Публичный контроллер
@@ -55,7 +53,6 @@ export class AuthController {
   }
 
   @Post(`/check-auth`)
-  @UseGuards(IsAuthGuard)
   async checkAuth() {
     return true
   }

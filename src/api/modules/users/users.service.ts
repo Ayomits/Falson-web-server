@@ -14,12 +14,13 @@ import { hasAdminPermission } from 'src/api/common/functions/isAdmin';
 
 import axios from 'axios';
 import { Request } from 'express';
+import { SchemasName } from 'src/api/common';
 
 @Injectable()
 export class UsersService {
   clientFetcher: ClientFetcher = new ClientFetcher(client);
   constructor(
-    @InjectModel(Users.name) private userModel: Model<Users>,
+    @InjectModel(SchemasName.Users) private userModel: Model<Users>,
     private cacheManager: Cache,
   ) {}
 

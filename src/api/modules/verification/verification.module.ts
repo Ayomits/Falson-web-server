@@ -1,29 +1,69 @@
-import { Global, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { VerificationService } from './verification.service';
 import { VerificationController } from './verification.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Verification, VerificationSchema } from './verification.schema';
-import { GuildsSettinsModule } from '../guilds-settings/guilds.module';
-import { AuthModule } from '../auth/auth.module';
-import { ExistedGuildMiddleware } from 'src/api/common/middlewares/existedGuild.middleware';
+import { SchemasName } from 'src/api/common';
+import {
+  EmbedSchema,
+  GeneralVerificationSchema,
+  TradionVerificationSchema,
+  VerificationSchema,
+  VoiceVerificationSchema,
+} from './schemas';
+import { GuildSettingsModule } from '../';
+import {
+  EmbedService,
+  GeneralService,
+  TraditionVerificationService,
+  VoiceVerificationService,
+} from './services';
+import {
+  EmbedsController,
+  GeneralController,
+  TraditionController,
+  VoiceController,
+} from './controllers';
 
-@Global()
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: Verification.name, schema: VerificationSchema },
+      {
+        name: SchemasName.GeneralVerification,
+        schema: GeneralVerificationSchema,
+      },
+      {
+        name: SchemasName.TradionEmbed,
+        schema: EmbedSchema,
+      },
+      {
+        name: SchemasName.VoiceVerification,
+        schema: VoiceVerificationSchema,
+      },
+      {
+        name: SchemasName.TradionVerification,
+        schema: TradionVerificationSchema,
+      },
+      {
+        name: SchemasName.AllVerifications,
+        schema: VerificationSchema,
+      },
     ]),
-    GuildsSettinsModule,
-    AuthModule
+    GuildSettingsModule,
   ],
-  controllers: [VerificationController],
-  providers: [VerificationService],
-  exports: [VerificationModule, VerificationService, MongooseModule],
+  providers: [
+    VerificationService,
+    EmbedService,
+    VoiceVerificationService,
+    TraditionVerificationService,
+    GeneralService,
+  ],
+  controllers: [
+    VerificationController,
+    GeneralController,
+    EmbedsController,
+    TraditionController,
+    VoiceController,
+  ],
+  exports: [VerificationModule],
 })
-export class VerificationModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(ExistedGuildMiddleware)
-      .forRoutes(VerificationController); 
-  }
-}
+export class VerificationModule {}

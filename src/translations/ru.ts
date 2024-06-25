@@ -1,11 +1,11 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { PremiumEnum, SlashCommand } from 'src/api/common/types';
+import { GuildType, SlashCommand } from 'src/api/common/types';
 
 export const ru = [
   {
     name: `bot`,
     description: `Commands about our bot`,
-    type: PremiumEnum.NoPrem,
+    type: GuildType.Everyone,
     commandBuilder: new SlashCommandBuilder()
       .setName(`bot`)
       .setDescription(`commands about our bot`),

@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
 export class Users {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   userId: string;
 
   @Prop({
@@ -15,7 +15,7 @@ export class Users {
     refreshToken: string;
   };
 
-  @Prop({ default: new Date() })
+  @Prop({ default: new Date(), type: Date })
   createdAt?: Date;
 
 }

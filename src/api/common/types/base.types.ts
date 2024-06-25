@@ -8,12 +8,10 @@ export type UserIds = UserId[];
 export type ChannelIds = ChannelId[];
 export type RoleIds = RoleId[];
 
-export enum PremiumEnum {
-  NoPrem = 0,
-  Donater = 1,
-  MiddleDonater = 2,
-  Sponsor = 3,
-  Developer = 4,
+export enum GuildType {
+  Everyone = 0,
+  Premium = 1,
+  Developer = 2,
 }
 
 export enum VerificationType {

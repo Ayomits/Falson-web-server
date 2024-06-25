@@ -12,7 +12,7 @@ export type SubCommandType = {
 };
 
 export type SubCommandGroupType = {
-  name: string
+  name: string;
   builder: SlashCommandSubcommandGroupBuilder;
   subcommands: SubCommandType[];
   /**
@@ -35,4 +35,10 @@ export type SlashCommand = {
 
   groups?: SubCommandGroupType[];
   subcommands?: SubCommandType[];
+};
+
+export type GuildCommandType = {
+  roles: string[];
+  channels: string[];
+  isEnabled: boolean;
 };
