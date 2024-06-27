@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Inject } from '@nestjs/common';
 import { IsBotGuard } from '../isBot.guard';
-import { IsWhiteListGuard } from '../IsWhiteList.guard';
+import { IsWhiteListGuard } from '../';
 import { JwtService } from '@nestjs/jwt';
 import { GuildSettingsService } from 'src/api/modules/guild-settings/guild-settings.service';
 
