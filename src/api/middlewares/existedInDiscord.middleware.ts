@@ -1,6 +1,6 @@
 import { BadRequestException, NestMiddleware } from '@nestjs/common';
 import { ClientFetcher } from '../common/functions/clientFetcher.class';
-import { client } from 'src/discordjs';
+import { client } from 'src/discordjs/main';
 
 export class ExistedInDiscordMiddleware implements NestMiddleware {
   clientFetcher: ClientFetcher = new ClientFetcher(client);

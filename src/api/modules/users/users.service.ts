@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cache } from '@nestjs/cache-manager';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
-import { client } from 'src/discordjs';
+import { client } from 'src/discordjs/main';
 import {
   JwtPayload,
   UserGuild,

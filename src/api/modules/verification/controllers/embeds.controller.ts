@@ -6,10 +6,12 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { EmbedService } from '../services';
 import { EmbedDto } from '../dto';
 import { Types } from 'mongoose';
+import { MergedIsWhiteList } from '../../auth/guards';
 /**
  * Бля, раньше я считал, что эта идея хуйня будет распиливать
  * Щас понимаю насколько бекенд стал проще и легче для фронтендера
@@ -21,6 +23,7 @@ import { Types } from 'mongoose';
  * Т.К. ТУТ ОСОБЫЕ ПРАВА И ОСОБЫЙ ДОСТУП
  */
 @Controller(`verifications/embeds`)
+@UseGuards(MergedIsWhiteList)
 export class EmbedsController {
   constructor(private embedService: EmbedService) {}
 

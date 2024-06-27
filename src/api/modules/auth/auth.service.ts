@@ -3,9 +3,14 @@
  * ОСТАЛОСЬ ПОДУМАТЬ НАД ТОКЕНАМИ
  */
 
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
-import { client } from 'src/discordjs/index';
+import { client } from 'src/discordjs/main';
 import { Request, Response } from 'express';
 import axios from 'axios';
 import * as querystring from 'querystring';
@@ -109,14 +114,12 @@ export class AuthService {
          */
 
         res.cookie('accessToken', authTokens.accessToken, {
-          httpOnly: true,
           secure: true,
           sameSite: 'strict',
           maxAge: 15 * 60 * 1000, // 15 минут
         }),
 
         res.cookie('refreshToken', authTokens.refreshToken, {
-          httpOnly: true,
           secure: true,
           sameSite: 'strict',
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
@@ -146,7 +149,7 @@ export class AuthService {
     )) as JwtPayload;
 
     if (!verifyToken) {
-      throw new BadRequestException(`Invalid token`);
+      throw new UnauthorizedException(`Invalid token`);
     }
     const tokens = await this.getTokens({ userId: verifyToken.userId });
 

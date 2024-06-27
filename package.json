@@ -39,6 +39,7 @@
     "dotenv": "^16.4.5",
     "fast-json-stringify": "^6.0.0",
     "glob": "^10.4.1",
+    "helmet": "^7.1.0",
     "i18next": "^23.11.5",
     "i18next-express-middleware": "^2.0.0",
     "i18next-fs-backend": "^2.3.1",

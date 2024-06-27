@@ -5,7 +5,7 @@ import { Guild } from './schemas/guilds.schema';
 import { Cache } from '@nestjs/cache-manager';
 import { GuildDto } from './dto/guild.dto';
 import { ClientFetcher, SchemasName } from 'src/api/common';
-import { client } from 'src/discordjs';
+import { client } from 'src/discordjs/main';
 import { LanguagesDto } from './dto/language.dto';
 
 @Injectable()

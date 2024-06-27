@@ -4,22 +4,6 @@ import {
   SlashCommandSubcommandGroupBuilder,
 } from 'discord.js';
 
-export type SubCommandType = {
-  name: string;
-  description: string;
-  builder: SlashCommandSubcommandBuilder;
-  type: number;
-};
-
-export type SubCommandGroupType = {
-  name: string;
-  builder: SlashCommandSubcommandGroupBuilder;
-  subcommands: SubCommandType[];
-  /**
-   * Тип для группы
-   */
-  type: number;
-};
 
 export type SlashCommand = {
   /**
@@ -33,8 +17,6 @@ export type SlashCommand = {
    */
   type: number;
 
-  groups?: SubCommandGroupType[];
-  subcommands?: SubCommandType[];
 };
 
 export type GuildCommandType = {

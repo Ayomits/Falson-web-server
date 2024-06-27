@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
-import { client } from 'src/discordjs';
+import { client } from 'src/discordjs/main';
 
 @Injectable()
 export class StatsService {

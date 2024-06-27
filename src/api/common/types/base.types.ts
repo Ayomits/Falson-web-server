@@ -17,8 +17,7 @@ export enum GuildType {
 export enum VerificationType {
   Traditional = 0,
   Voice = 1,
-  Captcha = 2,
-  Both = 3,
+  Both = 2,
 }
 
 export type LanguagesType =

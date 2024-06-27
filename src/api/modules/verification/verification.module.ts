@@ -10,7 +10,7 @@ import {
   VerificationSchema,
   VoiceVerificationSchema,
 } from './schemas';
-import { GuildSettingsModule } from '../';
+import { AuthModule, GuildSettingsModule } from '../';
 import {
   EmbedService,
   GeneralService,
@@ -49,6 +49,7 @@ import {
       },
     ]),
     GuildSettingsModule,
+    AuthModule
   ],
   providers: [
     VerificationService,

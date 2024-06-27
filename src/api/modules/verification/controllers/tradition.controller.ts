@@ -6,11 +6,14 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { TraditionVerificationService } from '../services';
 import { TradionVerificationDto } from '../dto';
+import { MergedIsWhiteList } from '../../auth/guards';
 
 @Controller(`verifications/tradition`)
+@UseGuards(MergedIsWhiteList)
 export class TraditionController {
   constructor(private traditionService: TraditionVerificationService) {}
 

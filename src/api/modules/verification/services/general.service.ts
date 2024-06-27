@@ -4,7 +4,7 @@ import { GeneralVerification, Verification } from '../schemas';
 import { ClientFetcher, SchemasName } from 'src/api/common';
 import { Model, Types } from 'mongoose';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { client } from 'src/discordjs';
+import { client } from 'src/discordjs/main';
 
 @Injectable()
 export class GeneralService {

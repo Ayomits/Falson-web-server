@@ -10,11 +10,13 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
-import { client } from 'src/discordjs';
+import { client } from 'src/discordjs/main';
 import { Request } from 'express';
 import { JwtPayload } from 'src/api/common/types/base.types';
+import { IsAuthGuard } from '../auth/guards';
 
 @Controller('users')
+@UseGuards(IsAuthGuard)
 export class UsersController {
   clientFetcher = new ClientFetcher(client);
   constructor(@Inject(UsersService) private usersService: UsersService) {}

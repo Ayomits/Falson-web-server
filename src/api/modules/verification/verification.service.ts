@@ -9,6 +9,7 @@ import { VoiceVerificationService } from './services/voice.service';
 import { TraditionVerificationService } from './services/traditionVerification.service';
 import { plainToInstance } from 'class-transformer';
 import { VerificationResponse } from './dto/fullResponse.dto';
+import { VerificationTypeDto } from './dto/verificationtype.dto';
 
 @Injectable()
 export class VerificationService {
@@ -25,6 +26,11 @@ export class VerificationService {
   /**
    * Для каждого сервера дефолтные настройки
    */
+
+  async findAll() {
+    return await this.verificationModel.find()
+  }
+
   async createDefaultSettings(guildId: string) {
     const existed = await this.findByGuildId(guildId);
     if (existed) throw new BadRequestException(`This settings already exists`);
@@ -66,5 +72,18 @@ export class VerificationService {
     };
 
     return plainToInstance(VerificationResponse, response);
+  }
+
+  async updateVerificationType(guildId: string, dto: VerificationTypeDto) {
+    const guild = await this.findByGuildId(guildId);
+    if (!guild)
+      throw new BadRequestException(`Settings for this guild does not exists`);
+    return await this.verificationModel.findByIdAndUpdate(
+      guild._id,
+      {
+        ...dto,
+      },
+      { new: true },
+    );
   }
 }

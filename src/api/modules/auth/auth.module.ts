@@ -6,6 +6,26 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
 import { GuildSettingsModule } from '../guild-settings/guild-settings.module';
+import {
+  IsAuthGuard,
+  IsServerOwnerGuard,
+  IsWhiteListGuard,
+  MergedIsAuth,
+  MergedIsOwner,
+  MergedIsWhiteList,
+  IsBotGuard,
+} from './guards';
+import { GuildSettingsService } from '../guild-settings/guild-settings.service';
+
+const guards = [
+  IsAuthGuard,
+  IsWhiteListGuard,
+  IsServerOwnerGuard,
+  IsBotGuard,
+  MergedIsAuth,
+  MergedIsOwner,
+  MergedIsWhiteList,
+];
 
 @Module({
   imports: [
@@ -18,13 +38,7 @@ import { GuildSettingsModule } from '../guild-settings/guild-settings.module';
     forwardRef(() => GuildSettingsModule),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    UsersService,
-  ],
-  exports: [
-    AuthModule,
-    JwtModule,
-  ],
+  providers: [AuthService, UsersService, GuildSettingsService, ...guards],
+  exports: [AuthModule, JwtModule, GuildSettingsService, ...guards],
 })
 export class AuthModule {}

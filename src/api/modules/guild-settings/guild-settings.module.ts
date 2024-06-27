@@ -16,10 +16,11 @@ import { ExistedInDiscordMiddleware, SchemasName } from 'src/api/common';
     MongooseModule.forFeature([{ name: SchemasName.Guilds, schema: GuildSchema }]),
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
+    
   ],
   providers: [GuildSettingsService],
   controllers: [GuildSettingsController],
-  exports: [GuildSettingsModule, GuildSettingsService]
+  exports: [GuildSettingsModule, GuildSettingsService, MongooseModule]
 })
 export class GuildSettingsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
