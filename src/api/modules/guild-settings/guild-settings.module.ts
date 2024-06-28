@@ -16,9 +16,8 @@ import { ExistedInDiscordMiddleware, SchemasName } from 'src/api/common';
     MongooseModule.forFeature([{ name: SchemasName.Guilds, schema: GuildSchema }]),
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
-    
   ],
-  providers: [GuildSettingsService],
+  providers: [GuildSettingsService ],
   controllers: [GuildSettingsController],
   exports: [GuildSettingsModule, GuildSettingsService, MongooseModule]
 })

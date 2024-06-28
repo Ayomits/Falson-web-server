@@ -19,9 +19,6 @@ export class GuildDto {
   badges?: Badges[];
 
   @IsEnum(LanguagesEnum)
-  commandLanguage?: LanguagesEnum
-
-  @IsEnum(LanguagesEnum)
   interfaceLanguage?: LanguagesEnum
 
 }

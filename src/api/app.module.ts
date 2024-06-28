@@ -6,7 +6,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CustomCacheInterceptor } from './interceptors/cache.interceptor';
 import {
   AuthModule,
-  CommandsModule,
   DiscordModule,
   GuildSettingsModule,
   StatsModule,
@@ -34,7 +33,6 @@ import {
     UsersModule,
     StatsModule,
     DiscordModule,
-    CommandsModule,
     VerificationModule,
     GuildSettingsModule,
   ],

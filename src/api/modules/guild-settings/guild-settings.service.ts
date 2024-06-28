@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Guild } from './schemas/guilds.schema';
@@ -7,6 +12,8 @@ import { GuildDto } from './dto/guild.dto';
 import { ClientFetcher, SchemasName } from 'src/api/common';
 import { client } from 'src/discordjs/main';
 import { LanguagesDto } from './dto/language.dto';
+
+import { Response } from 'express';
 
 @Injectable()
 export class GuildSettingsService {
@@ -29,7 +36,7 @@ export class GuildSettingsService {
   }
 
   async insertMany(dto: any[]) {
-    return await this.guildModel.insertMany(dto)
+    return await this.guildModel.insertMany(dto);
   }
 
   async fetchByGuildId(guildId: string) {
@@ -85,6 +92,22 @@ export class GuildSettingsService {
     );
     await this.cacheManager.set(guildId, newGuild);
     return newGuild;
+  }
+
+  async updateLanguage(guildId: string, dto: LanguagesDto, res: Response) {
+    const guild = await this.findByGuildId(guildId);
+    if (!guild) throw new BadRequestException(`This guild doesn't exists`);
+    const newGuild = await this.guildModel.findByIdAndUpdate(
+      guild._id,
+      {
+        $set: {
+          ...dto,
+        },
+      },
+      { new: true },
+    );
+
+    return res.json(newGuild);
   }
 
   async delete(guildId: string) {

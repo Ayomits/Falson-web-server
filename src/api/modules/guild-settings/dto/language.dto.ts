@@ -5,6 +5,4 @@ export class LanguagesDto {
   @IsEnum(LanguagesEnum)
   interfaceLanguage: LanguagesEnum
 
-  @IsEnum(LanguagesEnum)
-  commandLanguage: LanguagesEnum
 }

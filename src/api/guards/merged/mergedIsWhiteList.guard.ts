@@ -17,7 +17,6 @@ export class MergedIsWhiteList implements CanActivate {
       isWhite.canActivate(context),
       isBot.canActivate(context),
     ]);
-    console.log(isBot.canActivate(context))
     return isOwnerPromises.includes(true);
   }
 }

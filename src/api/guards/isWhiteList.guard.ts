@@ -30,14 +30,14 @@ export class IsWhiteListGuard implements CanActivate {
       const user = request?.user as JwtPayload;
       const guildId = request.params.guildId || request.body.guildId;
       const guild = clientFetcher.getGuildFromCache(guildId) as Guild;
-      const member = await guild.members.fetch(user?.userId);
-      const guildFromDb = await this.guildService.findByGuildId(guildId);
+      const member = guild.members.cache.get(user?.userId);
       if (member?.permissions?.has(8n)) {
         return true;
       }
       if (guild?.ownerId === member?.id) {
         return true;
       }
+      const guildFromDb = await this.guildService.findByGuildId(guildId);
       if (
         member.roles?.cache.some((role) =>
           guildFromDb.trustedRoles.includes(role.id),

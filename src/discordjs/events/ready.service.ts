@@ -5,10 +5,6 @@ import { GuildType, SchemasName } from 'src/api';
 import { GuildSettingsService } from 'src/api/modules/guild-settings/guild-settings.service';
 import { GuildSchema } from 'src/api/modules/guild-settings/schemas/guilds.schema';
 import { VerificationService } from 'src/api/modules/verification/verification.service';
-import { SlashCommandsActionsClass } from './interaction.collector';
-import { CommandsService } from 'src/api/modules/commands/commands.service';
-import { GuildCommandSchema } from 'src/api/modules/commands/schemas';
-import { logger } from '../common';
 
 export class ReadyService {
   client: Client;
@@ -43,36 +39,4 @@ export class ReadyService {
     ]);
     await guildService.insertMany(newGuilds);
   }
-
-  @logger(
-    `Начинаю регистрацию команд для каждой гильдии`,
-    `Закончил регистрацию для каждой гильдии`,
-  )
-  async allGuildsRegister() {
-    const commandAction = new SlashCommandsActionsClass();
-    const commandService = this.app.get(CommandsService);
-    const guildService = this.app.get(GuildSettingsService);
-    const model = mongoose.model(SchemasName.GuildCommands, GuildCommandSchema);
-    for (const [_, guild] of this.client.guilds.cache) {
-      const guildFromDb = await guildService.findByGuildId(guild.id);
-      const commands = await commandAction.collectAllComands(
-        guildFromDb,
-        this.app,
-      );
-      await commandAction.commandRegister(guild.id, commands[0]);
-      if (commands[1].length >= 1) {
-        commandService.insertMany(
-          commands[1].map((command) => {
-            return new model({
-              guildId: guild.id,
-              commandName: command,
-              isEnabled: true,
-            });
-          }),
-        );
-        commandService.disableMany(guild.id, commands[2])
-      }
-    }
-  }
-
 }

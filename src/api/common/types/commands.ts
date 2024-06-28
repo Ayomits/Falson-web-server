@@ -1,14 +1,14 @@
-import { SlashCommandBuilder } from 'discord.js';
+type Translations = {
+  ru: string
+  en: string
+}
 
-export type SlashCommand = {
-  dbName: string;
-  name: string;
-  description: string;
-  commandBuilder: SlashCommandBuilder;
-  /**
-   * Для всех, Подписчик 1 лвла, Подписчик 2 лвла, Подписчик 3 лвла
-   */
-  type: number;
+export type DocumentationCommand = {
+  name: Translations
+  description: Translations
+  usage: Translations
+  tag: string
+  type: number
 };
 
 export type GuildCommandType = {
@@ -16,3 +16,5 @@ export type GuildCommandType = {
   channels: string[];
   isEnabled: boolean;
 };
+
+

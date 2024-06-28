@@ -17,6 +17,7 @@ import {
 } from '../../guards';
 import { GuildSettingsService } from '../guild-settings/guild-settings.service';
 
+
 const guards = [
   IsAuthGuard,
   IsWhiteListGuard,
