@@ -34,7 +34,7 @@ export class VerificationService {
   async createDefaultSettings(guildId: string) {
     const existed = await this.findByGuildId(guildId);
     if (existed) throw new BadRequestException(`This settings already exists`);
-    const [_, tradtion, voice, general] = await Promise.all([
+    const [_, tradition, voice, general] = await Promise.all([
       this.embedService.create(guildId, {
         ...defaultEmbeds[0],
         guildId: guildId,
@@ -47,7 +47,7 @@ export class VerificationService {
     return await this.verificationModel.create({
       guildId: guildId,
       voiceVerification: voice?._id,
-      tradionVerification: tradtion?._id,
+      tradionVerification: tradition?._id,
       generalVerification: general?._id,
     });
   }
