@@ -13,8 +13,8 @@ import { TrustedRolesDto } from './dto/trustedRoles.dto';
 import { GuildSettingsService } from './guild-settings.service';
 import { GuildDto } from './dto/guild.dto';
 import { LanguagesDto } from './dto/language.dto';
-import { MergedIsOwner, MergedIsWhiteList } from '../auth/guards';
-import { IsBotGuard } from '../auth/guards/isBot.guard';
+import { MergedIsOwner, MergedIsWhiteList } from '../../guards';
+import { IsBotGuard } from '../../guards/isBot.guard';
 
 @Controller('guild-settings')
 export class GuildSettingsController {

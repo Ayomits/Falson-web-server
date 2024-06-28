@@ -140,25 +140,26 @@ export class AuthService {
     }
   }
 
-  async exchangeRefreshToAccess(req: Request, res: Response) {
-    const verifyToken = (await this.jwtService.verify(
-      req.cookies.refreshToken,
-      {
+  async exchangeRefreshToAccess(refreshToken: string, res: Response) {
+    try {
+      const verifyToken = (await this.jwtService.verify(refreshToken, {
         secret: process.env.REFRESH_SECRET_KEY,
-      },
-    )) as JwtPayload;
+      })) as JwtPayload;
 
-    if (!verifyToken) {
-      throw new UnauthorizedException(`Invalid token`);
+      if (!verifyToken) {
+        throw new UnauthorizedException(`Invalid token`);
+      }
+      const tokens = await this.getTokens({ userId: verifyToken.userId });
+
+      return res.cookie('accessToken', tokens.accessToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000, // 15 минут
+      });
+    } catch {
+      throw new UnauthorizedException(`Token expired`);
     }
-    const tokens = await this.getTokens({ userId: verifyToken.userId });
-
-    return res.cookie('accessToken', tokens.accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000, // 15 минут
-    });
   }
 
   /**

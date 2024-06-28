@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { CommandsService } from './commands.service';
 import { CommandDto, CommandsDisableDto, CommandsEnableDto } from './dto';
-import { MergedIsWhiteList } from '../auth/guards';
-import { IsBotGuard } from '../auth/guards/isBot.guard';
+import { MergedIsWhiteList } from '../../guards';
+import { IsBotGuard } from '../../guards/isBot.guard';
 
 @Controller('commands')
 export class CommandsController {

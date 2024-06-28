@@ -1,5 +1,13 @@
-import { Expose } from 'class-transformer';
-import { IsDate, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import {
+  IsDate,
+  IsHexColor,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
 
 export class FooterDto {
   @IsString()
@@ -38,6 +46,11 @@ export class EmbedDto {
   @IsOptional()
   image?: string;
 
+  @MaxLength(7)
+  @MinLength(7)
+  @IsString()
+  color?: string;
+
   @ValidateNested()
   @Expose()
   @IsOptional()
@@ -48,5 +61,3 @@ export class EmbedDto {
   @IsOptional()
   author?: AuthorDto;
 }
-
-

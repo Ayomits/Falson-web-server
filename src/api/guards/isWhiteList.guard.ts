@@ -4,13 +4,12 @@ import {
   ForbiddenException,
   Inject,
 } from '@nestjs/common';
-import { UsersService } from '../../users/users.service';
 import { Request } from 'express';
 import { JwtPayload } from 'src/api/common/types/base.types';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 import { client } from 'src/discordjs';
 import { Guild } from 'discord.js';
-import { GuildSettingsService } from '../../guild-settings/guild-settings.service';
+import { GuildSettingsService } from '../modules/guild-settings/guild-settings.service';
 import { JwtService } from '@nestjs/jwt';
 import { IsAuthGuard } from './isAuth.guard';
 

@@ -1,4 +1,4 @@
-import { Channel, Client, Guild, GuildChannel } from 'discord.js';
+import { Client, Guild, GuildChannel } from 'discord.js';
 import { ChannelId, GuildId, RoleId, UserId } from '../types/base.types';
 
 export class ClientFetcher {

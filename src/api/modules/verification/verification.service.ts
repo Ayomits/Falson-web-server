@@ -38,6 +38,7 @@ export class VerificationService {
       this.embedService.create(guildId, {
         ...defaultEmbeds[0],
         guildId: guildId,
+        
       }),
       this.traditionService.create({ guildId: guildId }),
       this.voiceService.create({ guildId: guildId }),

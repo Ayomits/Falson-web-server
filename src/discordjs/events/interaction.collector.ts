@@ -6,19 +6,12 @@ import {
   Snowflake,
 } from 'discord.js';
 import { en, ru } from './../../translations/';
-import {
-  GuildCommandType,
-  LanguagesEnum,
-  SlashCommand,
-} from 'src/api/common/types';
-
+import { GuildType, LanguagesEnum, SlashCommand } from 'src/api/common/types';
 import _ from 'lodash';
 import { client } from '../main';
 import { Guild as GuildDocument } from 'src/api/modules/guild-settings/schemas/guilds.schema';
 import { INestApplicationContext } from '@nestjs/common';
 import { CommandsService } from 'src/api/modules/commands/commands.service';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from 'src/api/app.module';
 
 export type DocumentationCommandsType = {
   name: string;
@@ -39,30 +32,35 @@ export class SlashCommandsActionsClass {
     app: INestApplicationContext,
   ) {
     const allCommands = this.getLanguageCommands();
-    const commands = allCommands[guild.commandLanguage.toLowerCase()] as SlashCommand[];
+    const commands = allCommands[
+      guild.commandLanguage.toLowerCase()
+    ] as SlashCommand[];
     const commandService = app.get(CommandsService);
     const allGuildCommands = await commandService.allCommands(guild.guildId);
-    const slashCommands = [[], []] as [
+    const slashCommands = [[], [], []] as [
       SlashCommandBuilder[],
-      { commandName: string; description: string }[],
+      string[],
+      string[],
     ];
     for (const command of commands) {
-      if (guild.type < command.type) continue;
-      const commandBuilder = _.clone(command.commandBuilder);
-      const commandName = command.name;
       const commandFromDb = allGuildCommands.find(
-        (c) => c.commandName === commandName,
+        (c) => c.commandName === command.dbName,
       );
+      if (guild.type < command.type) {
+        if (commandFromDb) {
+          slashCommands[2].push(commandFromDb.commandName);
+        }
+        continue;
+      }
+      const commandBuilder = _.clone(command.commandBuilder);
+
       if (commandFromDb) {
         if (commandFromDb.isEnabled) {
           slashCommands[0].push(commandBuilder);
         }
         continue;
       } else {
-        slashCommands[1].push({
-          commandName: command.name,
-          description: command.description,
-        });
+        slashCommands[1].push(command.dbName);
         slashCommands[0].push(commandBuilder);
       }
     }
@@ -78,11 +76,13 @@ export class SlashCommandsActionsClass {
   public collectCommandNames(language: string): DocumentationCommandsType[] {
     const languageCommands = this.getLanguageCommands();
     const commands = languageCommands[language.toLowerCase()] as SlashCommand[];
-    const filtered = commands.map((command) => {
-      const { name, description, type } = command;
-      const response = { name, description, type };
-      return response;
-    });
+    const filtered = commands
+      .filter((command) => command.type < GuildType.Developer)
+      .map((command) => {
+        const { name, description, type } = command;
+        const response = { name, description, type };
+        return response;
+      });
     return filtered;
   }
 

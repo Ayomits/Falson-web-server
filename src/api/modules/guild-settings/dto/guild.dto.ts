@@ -18,10 +18,10 @@ export class GuildDto {
   @IsEnum(Badges, { each: true })
   badges?: Badges[];
 
-  @IsEnum(LanguagesEnum, {each: true})
-  commandLanguage?: LanguagesEnum[]
+  @IsEnum(LanguagesEnum)
+  commandLanguage?: LanguagesEnum
 
-  @IsEnum(LanguagesEnum, {each: true})
-  interfaceLanguage?: LanguagesEnum[]
+  @IsEnum(LanguagesEnum)
+  interfaceLanguage?: LanguagesEnum
 
 }

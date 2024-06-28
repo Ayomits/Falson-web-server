@@ -11,7 +11,7 @@ import {
 import { EmbedService } from '../services';
 import { EmbedDto } from '../dto';
 import { Types } from 'mongoose';
-import { MergedIsWhiteList } from '../../auth/guards';
+import { MergedIsWhiteList } from '../../../guards';
 /**
  * Бля, раньше я считал, что эта идея хуйня будет распиливать
  * Щас понимаю насколько бекенд стал проще и легче для фронтендера
@@ -32,10 +32,10 @@ export class EmbedsController {
     return this.embedService.findByGuildId(guildId);
   }
 
-  @Get(`:guildId/:id`)
+  @Get(`:guildId/:objectId`)
   async findCurrentEmbed(
     @Param(`guildId`) guildId: string,
-    @Param(`id`) objectId: Types.ObjectId,
+    @Param(`objectId`) objectId: Types.ObjectId,
   ) {
     return this.embedService.findByIdAndGuildId(guildId, objectId);
   }

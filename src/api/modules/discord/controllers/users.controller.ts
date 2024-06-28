@@ -2,7 +2,7 @@ import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/clientFetcher.class';
 
 import { client } from 'src/discordjs/main';
-import { MergedIsWhiteList } from '../../auth/guards';
+import { MergedIsWhiteList } from '../../../guards';
 
 @Controller(`discord/users`)
 export class DiscordUsersController {

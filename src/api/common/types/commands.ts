@@ -1,14 +1,7 @@
-import {
-  SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
-  SlashCommandSubcommandGroupBuilder,
-} from 'discord.js';
-
+import { SlashCommandBuilder } from 'discord.js';
 
 export type SlashCommand = {
-  /**
-   * Основной билдер из которого собирается команда
-   */
+  dbName: string;
   name: string;
   description: string;
   commandBuilder: SlashCommandBuilder;
@@ -16,7 +9,6 @@ export type SlashCommand = {
    * Для всех, Подписчик 1 лвла, Подписчик 2 лвла, Подписчик 3 лвла
    */
   type: number;
-
 };
 
 export type GuildCommandType = {

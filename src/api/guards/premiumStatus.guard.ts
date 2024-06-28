@@ -6,7 +6,7 @@ import {
   SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { GuildSettingsService } from '../../guild-settings/guild-settings.service';
+import { GuildSettingsService } from '../modules/guild-settings/guild-settings.service';
 
 export const PremiumStatus = (status: number) =>
   SetMetadata('premiumStatus', status);

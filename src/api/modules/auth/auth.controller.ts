@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Inject,
@@ -45,15 +46,12 @@ export class AuthController {
    * }
    */
   @Post(`/token`)
-  async getAccessByRefresh(@Req() req: Request, @Res() res: Response) {
-    return await this.authService.exchangeRefreshToAccess(
-      req,
-      res
-    );
+  async getAccessByRefresh(@Body(`token`) token: string, @Res() res: Response) {
+    return await this.authService.exchangeRefreshToAccess(token, res);
   }
 
   @Post(`/check-auth`)
   async checkAuth() {
-    return true
+    return true;
   }
 }

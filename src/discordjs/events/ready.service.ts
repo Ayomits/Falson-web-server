@@ -65,11 +65,12 @@ export class ReadyService {
           commands[1].map((command) => {
             return new model({
               guildId: guild.id,
-              commandName: command.commandName,
+              commandName: command,
               isEnabled: true,
             });
           }),
         );
+        commandService.disableMany(guild.id, commands[2])
       }
     }
   }
