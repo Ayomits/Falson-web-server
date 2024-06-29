@@ -48,9 +48,8 @@ export class GuildSettingsController {
   patchLanguages(
     @Param(`guildId`) guildId: string,
     @Body() languages: LanguagesDto,
-    @Res() res: Response
   ) {
-    return this.guildSettingsService.updateLanguage(guildId, languages, res);
+    return this.guildSettingsService.updateLanguage(guildId, languages);
   }
 
   @Delete(`:guildId`)

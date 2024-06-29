@@ -94,20 +94,14 @@ export class GuildSettingsService {
     return newGuild;
   }
 
-  async updateLanguage(guildId: string, dto: LanguagesDto, res: Response) {
+  async updateLanguage(guildId: string, dto: LanguagesDto) {
     const guild = await this.findByGuildId(guildId);
     if (!guild) throw new BadRequestException(`This guild doesn't exists`);
-    const newGuild = await this.guildModel.findByIdAndUpdate(
-      guild._id,
-      {
-        $set: {
-          ...dto,
-        },
-      },
-      { new: true },
-    );
-
-    return res.json(newGuild);
+    if (guild.interfaceLanguage === dto.interfaceLanguage)
+      throw new BadRequestException(`Dto language is equal guild language`);
+    return await this.updateOne(guildId, {
+      interfaceLanguage: dto.interfaceLanguage,
+    });
   }
 
   async delete(guildId: string) {
