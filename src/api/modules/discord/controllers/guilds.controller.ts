@@ -67,6 +67,6 @@ export class GuildsController {
     @Param('guildId') guildId: string,
     @Param(`memberId`) memberId: string,
   ) {
-    return await this.clientFetcher.fetchMember(guildId, memberId);
+    return await this.clientFetcher.getMemberFromCache(guildId, memberId);
   }
 }

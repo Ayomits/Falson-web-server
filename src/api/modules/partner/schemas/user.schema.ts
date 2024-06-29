@@ -4,6 +4,7 @@ import { PartnerPriority } from 'src/api/common/types/PartnerType';
 
 @Schema()
 export class UserPartner extends Document {
+  
   @Prop({ default: null, type: String, required: false })
   userId: string;
 
