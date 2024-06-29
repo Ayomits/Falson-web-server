@@ -18,7 +18,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'src/api/common/types/base.types';
 import crypto from 'crypto';
-import { Users } from '../users/users.schema';
+import { Users } from '../users/schemas/users.schema';
 
 @Injectable()
 export class AuthService {
@@ -98,8 +98,16 @@ export class AuthService {
        * 2) Наши токены для авторизации, того же типа, что и у дискорда, но это доступ к нашему серверу - хешируем
        *
        */
+      const user = await this.usersService.createOrUpdate({
+        userId: userData.id,
+        tokens: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+        },
+      });
       const authTokens = await this.getTokens({
         userId: userData.id,
+        type: user.type,
       });
       /**
        * createOrUpdate
@@ -125,14 +133,6 @@ export class AuthService {
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
         }),
 
-        this.usersService.createOrUpdate({
-          userId: userData.id,
-          tokens: {
-            accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken,
-          },
-        }),
-
         res.redirect(`${process.env.FRONTEND_URL}`),
       ]);
     } catch (err) {
@@ -149,7 +149,10 @@ export class AuthService {
       if (!verifyToken) {
         throw new UnauthorizedException(`Invalid token`);
       }
-      const tokens = await this.getTokens({ userId: verifyToken.userId });
+      const tokens = await this.getTokens({
+        userId: verifyToken.userId,
+        type: verifyToken.type,
+      });
 
       return res.cookie('accessToken', tokens.accessToken, {
         httpOnly: true,

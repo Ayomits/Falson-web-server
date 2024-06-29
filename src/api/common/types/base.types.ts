@@ -67,6 +67,7 @@ export type UserValidGuild = {
 
 export type JwtPayload = {
   userId: string;
+  type: number
 };
 
 export type EmbedType = {

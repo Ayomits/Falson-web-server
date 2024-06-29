@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import { UserType } from 'src/api/common/types/user';
 
 @Schema()
-export class Users {
+export class Users extends Document {
   @Prop({ required: true, type: String })
   userId: string;
 
@@ -18,5 +20,7 @@ export class Users {
   @Prop({ default: new Date(), type: Date })
   createdAt?: Date;
 
+  @Prop({ type: Number, default: UserType.everyone })
+  type?: number;
 }
 export const UserScema = SchemaFactory.createForClass<Users>(Users);

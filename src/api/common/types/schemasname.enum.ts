@@ -6,5 +6,7 @@ export enum SchemasName {
   TradionEmbed = `embeds_verification`,
   GeneralVerification = `general_verification`,
   Users = `users`,
-  AllVerifications = `verifications`
+  AllVerifications = `verifications`,
+  UserPartner = 'partner_users',
+  GuildPartner = 'partner_guilds',
 }

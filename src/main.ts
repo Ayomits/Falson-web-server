@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 import { discordjsInitialize } from './discordjs/main';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 config();
 
 async function bootstrap() {
@@ -21,6 +22,12 @@ async function bootstrap() {
     }),
   );
 
+  const corsOptions: CorsOptions = {
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  };
+  app.enableCors(corsOptions);
   await app.listen(3000).then(() => {
     console.log(`3000`);
   });

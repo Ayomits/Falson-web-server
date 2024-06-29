@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Users } from './users.schema';
+import { Users } from './schemas/users.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cache } from '@nestjs/cache-manager';
@@ -15,6 +15,8 @@ import { hasAdminPermission } from 'src/api/common/functions/isAdmin';
 import axios from 'axios';
 import { Request } from 'express';
 import { SchemasName } from 'src/api/common';
+import { UserType } from 'src/api/common/types/user';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -116,7 +118,7 @@ export class UsersService {
       }
     }
 
-    return sortedGuilds
+    return sortedGuilds;
   }
 
   async fetchUserGuilds(
@@ -188,7 +190,7 @@ export class UsersService {
    * @param userSchema
    * @returns
    */
-  async create(userSchema: Users) {
+  async create(userSchema: UserDto) {
     const existedUser = await this.findByUserId(userSchema.userId);
     if (existedUser) throw new BadRequestException(`This user already exists`);
     return await this.userModel.create(userSchema);
@@ -197,17 +199,18 @@ export class UsersService {
    * Для Аутентификации
    * Чтобы токены рефреш и акцесс менять
    * */
-  async createOrUpdate(userSchema: Users) {
+  async createOrUpdate(userSchema: UserDto) {
     const existedUser = (await this.findByUserId(
       userSchema.userId,
     )) as Model<Users> & Users;
     if (existedUser) {
-      return await existedUser.updateOne({
+      return await this.userModel.findByIdAndUpdate(existedUser._id, {
         ...userSchema,
-        userId: userSchema.userId,
+        userId: existedUser.userId,
+        type: existedUser ? existedUser.type : UserType.everyone,
       });
     } else {
-      return await this.create(userSchema);
+      return await this.create({ ...userSchema, type: UserType.everyone });
     }
   }
 
