@@ -30,6 +30,9 @@ export class GeneralVerification extends Document {
    */
   @Prop({ type: Types.Array<String>, default: [], required: false })
   verificationRoles: string[];
+
+  @Prop({ type: String, required: false })
+  unverifyRole: string;
 }
 
 export const GeneralVerificationSchema =

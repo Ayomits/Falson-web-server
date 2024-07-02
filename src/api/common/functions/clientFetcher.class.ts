@@ -1,4 +1,4 @@
-import { Client, Guild, GuildChannel } from 'discord.js';
+import { Client, Guild, GuildChannel, Invite } from 'discord.js';
 import { ChannelId, GuildId, RoleId, UserId } from '../types/base.types';
 
 export class ClientFetcher {
@@ -23,6 +23,10 @@ export class ClientFetcher {
 
   async fetchGuild(guildId: GuildId) {
     return await this.client.guilds.fetch(guildId);
+  }
+
+  async fetchGuildByInvite(inivte: string) {
+    return await this.client.fetchInvite(inivte);
   }
 
   getMembersCount(guildId: GuildId) {
@@ -51,6 +55,16 @@ export class ClientFetcher {
 
   async fetchChannel(channelId: ChannelId) {
     return await this.client.channels.fetch(channelId);
+  }
+
+  async fetchAllGuildChannels(guildId: string) {
+    const guild = await this.fetchGuild(guildId);
+    return guild ? guild.channels.fetch() : null;
+  }
+
+  async fetchGuildChannel(guildId: GuildId, channelId: ChannelId) {
+    const guild = await this.fetchGuild(guildId);
+    return guild ? guild.channels.fetch(channelId) : null;
   }
 
   // User related methods
@@ -98,7 +112,12 @@ export class ClientFetcher {
     return guild ? guild.roles.cache.get(roleId) : null;
   }
 
-  async fetchRoles(guildId: GuildId, roleId: RoleId) {
+  async fetchRoles(guildId: GuildId) {
+    const guild = await this.fetchGuild(guildId);
+    return guild ? await guild.roles.fetch() : null;
+  }
+
+  async fetchRole(guildId: string, roleId: string) {
     const guild = await this.fetchGuild(guildId);
     return guild ? await guild.roles.fetch(roleId) : null;
   }
@@ -119,5 +138,4 @@ export class ClientFetcher {
       });
     return sortedGuild;
   }
-
 }

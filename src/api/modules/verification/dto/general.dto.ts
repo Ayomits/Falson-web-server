@@ -17,4 +17,7 @@ export class GeneralVerificationDto {
   @MaxLength(25)
   @MinLength(1)
   verificationRoles?: string[];
+
+  @IsString()
+  unverifyRole?: string
 }

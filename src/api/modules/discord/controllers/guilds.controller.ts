@@ -15,44 +15,44 @@ export class GuildsController {
   /**
    * Выдача всех серверов из кеша discord.js клиента
    */
-  getAllGuilds() {
-    return this.clientFetcher.getAllGuildsFromCache();
+  async getAllGuilds() {
+    return await this.clientFetcher.fetchGuilds();
   }
 
   @Get(`:guildId`)
   @UseGuards(MergedIsWhiteList)
-  getGuild(@Param(`guildId`) guildId: string) {
-    return this.clientFetcher.getGuildFromCache(guildId);
+  async getGuild(@Param(`guildId`) guildId: string) {
+    return await this.clientFetcher.fetchGuild(guildId);
   }
 
   @Get(`:guildId/roles`)
   @UseGuards(MergedIsWhiteList)
-  getAllRoles(@Param('guildId') guildId: string) {
-    return this.clientFetcher.getAllRoles(guildId);
+  async getAllRoles(@Param('guildId') guildId: string) {
+    return await this.clientFetcher.fetchRoles(guildId);
   }
 
   @Get(`:guildId/roles/:roleId`)
   @UseGuards(MergedIsWhiteList)
-  getRoleById(
+  async getRoleById(
     @Param('guildId') guildId: string,
     @Param('roleId') roleId: string,
   ) {
-    return this.clientFetcher.getRoleFromCache(guildId, roleId);
+    return await this.clientFetcher.fetchRole(guildId, roleId);
   }
 
   @Get(`:guildId/channels`)
   @UseGuards(MergedIsWhiteList)
-  getAllChannels(@Param('guildId') guildId: string) {
-    return this.clientFetcher.getAllChannelsGuild(guildId);
+  async getAllChannels(@Param('guildId') guildId: string) {
+    return await this.clientFetcher.fetchAllGuildChannels(guildId);
   }
 
   @Get(`:guildId/channels/:channelId`)
   @UseGuards(MergedIsWhiteList)
-  getChannelById(
+  async getChannelById(
     @Param('guildId') guildId: string,
     @Param(`channelId`) channelId: string,
   ) {
-    return this.clientFetcher.getGuildChannel(guildId, channelId);
+    return await this.clientFetcher.fetchGuildChannel(guildId, channelId);
   }
 
   @Get(`:guildId/members`)
@@ -67,6 +67,6 @@ export class GuildsController {
     @Param('guildId') guildId: string,
     @Param(`memberId`) memberId: string,
   ) {
-    return await this.clientFetcher.getMemberFromCache(guildId, memberId);
+    return await this.clientFetcher.fetchMember(guildId, memberId);
   }
 }

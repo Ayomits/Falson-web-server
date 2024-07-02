@@ -113,6 +113,7 @@ export class UsersService {
             icon: guild.icon,
             name: guildFromCache?.iconURL(),
             invited: true,
+            memberCount: guildFromCache.memberCount,
           });
         }
       }

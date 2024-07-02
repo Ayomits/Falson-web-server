@@ -10,8 +10,9 @@ export class DiscordUsersController {
 
   @Get(`:userId`)
   @UseGuards(MergedIsWhiteList)
-  getByUserId(@Param('userId') userId: string) {
-    return this.clientFetcher.getUserFromCache(userId);
+  async getByUserId(@Param('userId') userId: string) {
+    console.log(`here`)
+    return await this.clientFetcher.fetchUser(userId);
   }
   
 }
