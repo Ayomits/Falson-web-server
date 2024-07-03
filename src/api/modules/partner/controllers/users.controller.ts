@@ -1,20 +1,54 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserPartnerDto } from '../dto/users.dto';
+import { UserPartnersService } from '../services/users.service';
+import { MergedUserTypeGuard } from 'src/api/guards/merged/mergedUserType.guard';
+import { UserType } from 'src/api/common/types/user';
+import { UserTypeDecorator } from 'src/api/guards/UserType.guard';
 
 @Controller(`partners/users`)
 export class UserPartnersController {
+  constructor(private userPartnerService: UserPartnersService) {}
+
   @Get(`/`)
-  getUsersPartners() {}
+  getUsersPartners() {
+    return this.userPartnerService.findAll();
+  }
 
   @Get(`users/:userId`)
-  getUserPatnerById(@Param(`userId`) userId: string) {}
+  getUserPatnerById(@Param(`userId`) userId: string) {
+    return this.userPartnerService.findByUserId(userId);
+  }
 
   @Post()
-  createPartner(@Body() dto: UserPartnerDto) {}
+  @UserTypeDecorator(UserType.developer)
+  @UserTypeDecorator(UserType.developer)
+  createPartner(@Body() dto: UserPartnerDto) {
+    return this.userPartnerService.create(dto);
+  }
 
   @Patch(`users/:userId`)
-  updateUserPartner() {}
+  @UserTypeDecorator(UserType.developer)
+  @UseGuards(MergedUserTypeGuard)
+  updateUserPartner(
+    @Param(`userId`) userId: string,
+    @Body() dto: UserPartnerDto,
+  ) {
+    return this.userPartnerService.update(userId, dto);
+  }
 
   @Delete(`users/:userId`)
-  deleteUser() {}
+  @UserTypeDecorator(UserType.developer)
+  @UseGuards(MergedUserTypeGuard)
+  deleteUser(@Param(`userId`) userId: string) {
+    return this.userPartnerService.delete(userId);
+  }
 }

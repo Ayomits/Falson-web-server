@@ -3,7 +3,7 @@ import { UserType } from '../common/types/user';
 import { JwtPayload } from '../common';
 import { Reflector } from '@nestjs/core';
 
-const UserTypeDecorator = (required: UserType) =>
+export const UserTypeDecorator = (required: UserType) =>
   SetMetadata(`requiredType`, required);
 
 export class UserTypeGuard implements CanActivate {

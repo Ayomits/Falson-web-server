@@ -1,10 +1,7 @@
 import {
-  BadRequestException,
   Controller,
   Get,
   Inject,
-  Param,
-  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -50,4 +47,5 @@ export class UsersController {
   async ownersGuild(@Req() req: Request) {
     return this.usersService.ownersAndAdminsGuild(req);
   }
+  
 }

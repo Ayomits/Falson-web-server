@@ -1,20 +1,56 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { GuildPartnerDto } from '../dto/guild.dto';
+import {
+  UserTypeDecorator,
+  UserTypeGuard,
+} from 'src/api/guards/UserType.guard';
+import { UserType } from 'src/api/common/types/user';
+import { GuildPartnerService } from '../services/guilds.service';
 
 @Controller(`partners/guilds`)
 export class GuildPartnersController {
+  constructor(private guildPartnerService: GuildPartnerService) {}
+
   @Get(`guilds`)
-  getGuildsPartners() {}
+  getGuildsPartners() {
+    return this.guildPartnerService.findAll();
+  }
 
   @Get(`guilds/:guildId`)
-  getGuildPartners(@Param(`guildId`) guildId: string) {}
+  getGuildPartners(@Param(`guildId`) guildId: string) {
+    return this.guildPartnerService.findByGuildId(guildId);
+  }
 
   @Post()
-  createGuildPartner(@Body() dto: GuildPartnerDto) {}
+  @UserTypeDecorator(UserType.developer)
+  @UseGuards(UserTypeGuard)
+  createGuildPartner(@Body() dto: GuildPartnerDto) {
+    return this.guildPartnerService.create(dto);
+  }
 
   @Patch(`guilds/:guildId`)
-  updateGuildPartner() {}
+  @UserTypeDecorator(UserType.developer)
+  @UseGuards(UserTypeGuard)
+  updateGuildPartner(
+    @Param(`guildId`) guildId: string,
+    @Body() dto: GuildPartnerDto,
+  ) {
+    return this.guildPartnerService.update(guildId, dto);
+  }
 
   @Delete(`guilds/:guildId`)
-  deleteGuildPartner() {}
+  @UserTypeDecorator(UserType.developer)
+  @UseGuards(UserTypeGuard)
+  deleteGuildPartner(@Param(`guildId`) guildId: string) {
+    return this.guildPartnerService.delete(guildId);
+  }
 }
