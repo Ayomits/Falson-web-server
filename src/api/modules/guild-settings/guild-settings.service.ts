@@ -27,11 +27,13 @@ export class GuildSettingsService {
     return await this.guildModel.find();
   }
 
-  async findByGuildId(guildId: string): Promise<Guild> {
-    const guildFromCache = (await this.cacheManager.get(guildId)) as Guild;
+  async findByGuildId(guildId: string, res?: Response): Promise<Guild> {
+    const guildFromCache = (await this.cacheManager.get<Guild>(
+      guildId,
+    )) as Guild;
     if (guildFromCache) return guildFromCache;
     const guildFromDb = await this.fetchByGuildId(guildId);
-    if (guildFromDb) await this.cacheManager.set(guildId, guildFromDb);
+    if (guildFromDb) this.cacheManager.set(guildId, guildFromDb);
     return guildFromDb;
   }
 
@@ -74,7 +76,7 @@ export class GuildSettingsService {
       },
       { new: true },
     );
-    await this.cacheManager.set(guildId, newGuild);
+    this.cacheManager.set(guildId, newGuild);
     return newGuild;
   }
 
@@ -90,7 +92,7 @@ export class GuildSettingsService {
       },
       { new: true },
     );
-    await this.cacheManager.set(guildId, newGuild);
+    this.cacheManager.set(guildId, newGuild);
     return newGuild;
   }
 
@@ -99,7 +101,7 @@ export class GuildSettingsService {
     if (!guild) throw new BadRequestException(`This guild doesn't exists`);
     if (guild.interfaceLanguage === dto.interfaceLanguage)
       throw new BadRequestException(`Dto language is equal guild language`);
-    return await this.updateOne(guildId, {
+    return this.updateOne(guildId, {
       interfaceLanguage: dto.interfaceLanguage,
     });
   }
@@ -107,10 +109,8 @@ export class GuildSettingsService {
   async delete(guildId: string) {
     const guild = await this.findByGuildId(guildId);
     if (!guild) throw new BadRequestException(`This guild doesn't exists`);
-    await Promise.all([
-      this.cacheManager.del(guildId),
-      this.guildModel.deleteOne({ guildId }),
-    ]);
+    this.cacheManager.del(guildId)
+    this.guildModel.deleteOne({ guildId });
     return [];
   }
 }

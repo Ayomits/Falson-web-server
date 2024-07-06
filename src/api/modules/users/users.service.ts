@@ -168,15 +168,15 @@ export class UsersService {
    */
 
   async findByUserId(userId: string) {
-    const userFromCache = await this.cacheManager.get(userId);
+    const userFromCache = await this.cacheManager.get<Users>(userId);
     if (userFromCache) {
       return userFromCache;
     }
     const userFromDb = await this.fetchByUserId(userId);
     if (userFromDb) {
-      await this.cacheManager.set(userId, userFromDb);
+      this.cacheManager.set(userId, userFromDb);
     }
-    return userFromDb as unknown as Model<Users>;
+    return userFromDb;
   }
   /**
    *
@@ -201,17 +201,16 @@ export class UsersService {
    * Чтобы токены рефреш и акцесс менять
    * */
   async createOrUpdate(userSchema: UserDto) {
-    const existedUser = (await this.findByUserId(
-      userSchema.userId,
-    )) as Model<Users> & Users;
+    const existedUser = await this.findByUserId(userSchema.userId);
     if (existedUser) {
-      return await this.userModel.findByIdAndUpdate(existedUser._id, {
+      const newUser = await this.updateOne(userSchema.userId, {
         ...userSchema,
         userId: existedUser.userId,
         type: existedUser ? existedUser.type : UserType.everyone,
       });
+      this.cacheManager.set(existedUser.userId, newUser);
     } else {
-      return await this.create({ ...userSchema, type: UserType.everyone });
+      return this.create({ ...userSchema, type: UserType.everyone });
     }
   }
 
@@ -259,7 +258,7 @@ export class UsersService {
         const newTokens = await this.fetchAccessTokenByRefresh(
           tokens.refreshToken,
         );
-        return await this.fetchUserData(newTokens);
+        return this.fetchUserData(newTokens);
       }
       throw new BadRequestException(err.message);
     }
@@ -279,9 +278,7 @@ export class UsersService {
       { new: true },
     );
 
-    if (updatedUser) {
-      await this.cacheManager.set(userId, updatedUser);
-    }
+    this.cacheManager.set(userId, updatedUser);
 
     return updatedUser;
   }
@@ -289,6 +286,7 @@ export class UsersService {
   async deleteOne(userId: string) {
     const existedUser = await this.findByUserId(userId);
     if (!existedUser) throw new BadRequestException(`This user does not exist`);
+    this.cacheManager.del(userId);
     return await this.userModel.deleteOne({ userId: userId });
   }
   /**

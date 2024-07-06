@@ -7,7 +7,6 @@ import {
   Patch,
   Post,
   Put,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { TrustedRolesDto } from './dto/trustedRoles.dto';
@@ -16,7 +15,6 @@ import { GuildDto } from './dto/guild.dto';
 import { LanguagesDto } from './dto/language.dto';
 import { MergedIsOwner, MergedIsWhiteList } from '../../guards';
 import { IsBotGuard } from '../../guards/isBot.guard';
-import { Response } from 'express';
 
 @Controller('guild-settings')
 export class GuildSettingsController {

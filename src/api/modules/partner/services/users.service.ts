@@ -24,7 +24,7 @@ export class UserPartnersService {
     if (userFromCache) return userFromCache;
     const fetched = await this.fetchByUserId(userId);
     if (fetched) {
-      await this.cacheManager.set(`${userId}-partner`, fetched);
+      this.cacheManager.set(`${userId}-partner`, fetched);
     }
     return fetched;
   }
@@ -37,7 +37,7 @@ export class UserPartnersService {
     const existed = await this.findByUserId(dto.userId);
     if (existed) throw new BadRequestException(`This partner already exists`);
     const newpartner = await this.userPartnerModel.create(dto);
-    await this.cacheManager.set(`${dto.userId}-partner`, newpartner);
+    this.cacheManager.set(`${dto.userId}-partner`, newpartner);
     return newpartner;
   }
 
@@ -48,13 +48,14 @@ export class UserPartnersService {
       ...dto,
       userId: userId,
     });
-    await this.cacheManager.set(`${userId}-partner`, updated);
+    this.cacheManager.set(`${userId}-partner`, updated);
     return updated;
   }
 
   async delete(userId: string) {
     const existed = await this.findByUserId(userId);
     if (!existed) throw new BadRequestException(`This partner does not exist`);
+    this.cacheManager.del(`${userId}-partner`);
     return await this.userPartnerModel.findByIdAndDelete(existed._id);
   }
 }

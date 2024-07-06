@@ -10,6 +10,7 @@ import { TraditionVerificationService } from './services/traditionVerification.s
 import { plainToInstance } from 'class-transformer';
 import { VerificationResponse } from './dto/fullResponse.dto';
 import { VerificationTypeDto } from './dto/verificationtype.dto';
+import { Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class VerificationService {
@@ -21,6 +22,7 @@ export class VerificationService {
     private traditionService: TraditionVerificationService,
     private voiceService: VoiceVerificationService,
     private generalService: GeneralService,
+    private cacheManager: Cache,
   ) {}
 
   /**
@@ -28,7 +30,7 @@ export class VerificationService {
    */
 
   async findAll() {
-    return await this.verificationModel.find()
+    return await this.verificationModel.find();
   }
 
   async createDefaultSettings(guildId: string) {
@@ -38,7 +40,6 @@ export class VerificationService {
       this.embedService.create(guildId, {
         ...defaultEmbeds[0],
         guildId: guildId,
-        
       }),
       this.traditionService.create({ guildId: guildId }),
       this.voiceService.create({ guildId: guildId }),
@@ -53,7 +54,11 @@ export class VerificationService {
   }
 
   async findByGuildId(guildId: string) {
-    return await this.verificationModel.findOne({ guildId: guildId });
+    const cacheKey = `verification_${guildId}`;
+    return (
+      (await this.cacheManager.get<Verification>(cacheKey)) ||
+      (await this.verificationModel.findOne({ guildId: guildId }))
+    );
   }
 
   async allVerifications(guildId: string) {
@@ -79,12 +84,14 @@ export class VerificationService {
     const guild = await this.findByGuildId(guildId);
     if (!guild)
       throw new BadRequestException(`Settings for this guild does not exists`);
-    return await this.verificationModel.findByIdAndUpdate(
+    const newVerification = await this.verificationModel.findByIdAndUpdate(
       guild._id,
       {
         ...dto,
       },
       { new: true },
     );
+    this.cacheManager.set(newVerification._id.toString(), newVerification);
+    return newVerification;
   }
 }

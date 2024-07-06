@@ -5,6 +5,7 @@ import { GuildType, SchemasName } from 'src/api/common';
 import { TradionVerification } from '../schemas';
 import { TradionVerificationDto } from '../dto/tradition.dto';
 import { GuildSettingsService } from '../../guild-settings/guild-settings.service';
+import { Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class TraditionVerificationService {
@@ -12,9 +13,24 @@ export class TraditionVerificationService {
     @InjectModel(SchemasName.TradionVerification)
     private traditionVerificationModel: Model<TradionVerification>,
     private guildService: GuildSettingsService,
+    private cacheManager: Cache,
   ) {}
 
   async findByGuildId(guildId: string) {
+    const cacheKey = `tradition_${guildId}`;
+    const cacheVerification =
+      await this.cacheManager.get<TradionVerification>(cacheKey);
+    if (cacheVerification) return cacheVerification;
+    const fetched = await this.fetchByGuildId(guildId);
+    if (fetched) {
+      this.cacheManager.set(cacheKey, fetched);
+      this.cacheManager.set(fetched._id.toString(), fetched);
+      return fetched;
+    }
+    return fetched;
+  }
+
+  async fetchByGuildId(guildId: string) {
     const existedSettings = await this.traditionVerificationModel.findOne({
       guildId,
     });
@@ -24,7 +40,11 @@ export class TraditionVerificationService {
   }
 
   async findById(id: Types.ObjectId) {
-    return await this.traditionVerificationModel.findById(id)
+    const cacheKey = id.toString();
+    const cacheVerification =
+      await this.cacheManager.get<TradionVerification>(cacheKey);
+    if (cacheVerification) return cacheVerification;
+    return await this.traditionVerificationModel.findById(id);
   }
 
   async create(dto: TradionVerificationDto) {
@@ -34,33 +54,47 @@ export class TraditionVerificationService {
     const guild = await this.guildService.findByGuildId(dto.guildId);
     if (guild?.type < GuildType.Premium && dto.isDouble) {
       throw new BadRequestException(
-        `isDouble parametr must be false, because this guild has not premium`,
+        `isDouble parameter must be false, because this guild has not premium`,
       );
     }
     if (existedSettings)
       throw new BadRequestException(`This settings already exists`);
-    return await this.traditionVerificationModel.create(dto);
+    const newVerification = await this.traditionVerificationModel.create(dto);
+    this.cacheManager.set(newVerification._id.toString(), newVerification);
+    this.cacheManager.set(`tradition_${dto.guildId}`, newVerification);
+    return newVerification;
   }
 
   async update(guildId: string, dto: TradionVerificationDto) {
     const existedSettings = await this.traditionVerificationModel.findOne({
-      guildId: dto.guildId,
+      guildId,
     });
-    const guild = await this.guildService.findByGuildId(dto.guildId);
+    const guild = await this.guildService.findByGuildId(guildId);
     if (guild?.type < GuildType.Premium && dto.isDouble) {
       throw new BadRequestException(
-        `isDouble parametr must be false, because this guild has not premium`,
+        `isDouble parameter must be false, because this guild has not premium`,
       );
     }
     if (!existedSettings)
       throw new BadRequestException(`This settings does not exists`);
-    return await this.traditionVerificationModel.updateOne(
-      { guildId },
-      { ...dto, guildId: guildId },
-    );
+    const newVerification =
+      await this.traditionVerificationModel.findByIdAndUpdate(
+        existedSettings._id,
+        { ...dto, guildId: guildId },
+        { new: true },
+      );
+    this.cacheManager.set(newVerification._id.toString(), newVerification);
+    this.cacheManager.set(`tradition_${guildId}`, newVerification);
+    return newVerification;
   }
 
   async delete(guildId: string) {
-    return await this.traditionVerificationModel.deleteOne({ guildId });
+    const existedSettings = await this.findByGuildId(guildId);
+    if (!existedSettings)
+      throw new BadRequestException(`This settings does not exists`);
+    this.cacheManager.del(`tradition_${guildId}`);
+    this.cacheManager.del(existedSettings._id.toString());
+    await this.traditionVerificationModel.deleteOne({ guildId });
+    return { message: `successfully deleted` };
   }
 }
