@@ -13,6 +13,7 @@ import { ClientFetcher } from 'src/api/common/functions/';
 import { client } from 'src/discordjs/main';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
+import { IsCache } from 'src/api/interceptors';
 
 /**
  * Публичный контроллер
@@ -27,6 +28,7 @@ export class AuthController {
    * Публичный эндпоинт
    */
   @Get('/discord/login')
+  @IsCache(true)
   login(@Res() res: Response) {
     return this.authService.login(res);
   }
@@ -35,6 +37,7 @@ export class AuthController {
    * Публичный эндпоинт
    */
   @Get('/discord/callback')
+  @IsCache(false)
   callback(@Req() req: Request, @Res() res: Response) {
     return this.authService.handleCallback(req, res);
   }
