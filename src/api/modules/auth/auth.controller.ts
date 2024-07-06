@@ -46,12 +46,7 @@ export class AuthController {
    * }
    */
   @Post(`/token`)
-  async getAccessByRefresh(@Body(`token`) token: string, @Res() res: Response) {
-    return await this.authService.exchangeRefreshToAccess(token, res);
-  }
-
-  @Post(`/check-auth`)
-  async checkAuth() {
-    return true;
+  getAccessByRefresh(@Body(`token`) token: string, @Res() res: Response) {
+    return this.authService.exchangeRefreshToAccess(token, res);
   }
 }

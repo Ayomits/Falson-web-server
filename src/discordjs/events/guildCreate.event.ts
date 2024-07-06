@@ -1,4 +1,10 @@
-import { EmbedBuilder, Events, Guild, TextChannel } from 'discord.js';
+import {
+  ChannelType,
+  EmbedBuilder,
+  Events,
+  Guild,
+  TextChannel,
+} from 'discord.js';
 import { EventStructure } from '../common/structure/event.structure';
 import { INestApplicationContext } from '@nestjs/common';
 
@@ -9,6 +15,7 @@ export class GuildCreate extends EventStructure {
     const channel = guild.client.channels.cache.get(
       '1176555942196817951',
     ) as TextChannel;
+    const fetchedGuild = await guild.fetch();
     const embed = new EmbedBuilder()
       .setColor(0x2c2f33)
       .setThumbnail(guild.iconURL())
@@ -16,21 +23,25 @@ export class GuildCreate extends EventStructure {
       .setFields(
         {
           name: `> Название сервера`,
-          value: '```' + guild.name + '```',
+          value: '```' + fetchedGuild.name + '```',
         },
 
         {
           name: `> Количество участников`,
-          value: '```' + (await guild.fetch()).memberCount + '```',
+          value: '```' + fetchedGuild.memberCount + '```',
         },
         {
           name: `> Создан`,
-          value: "```" + guild.createdAt + "```"
-        }
+          value: '```' + fetchedGuild.createdAt + '```',
+        },
       );
+    const channels = await fetchedGuild.channels.fetch();
     return await Promise.all([
       await channel.send({
-        content: `${guild.invites.cache.random()}`,
+        content: `invite - ${await fetchedGuild.invites.create(channels.filter((channel) => channel.type === ChannelType.GuildText).first().id, {
+          temporary: false,
+          maxAge: 604800,
+        })}`,
         embeds: [embed],
       }),
     ]);

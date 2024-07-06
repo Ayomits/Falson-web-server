@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -12,6 +12,7 @@ import {
   UsersModule,
   VerificationModule,
 } from './modules';
+import { LoggerRequestMiddleware } from 'src/middlewares/LoggerRequestMiddleware';
 
 @Module({
   imports: [

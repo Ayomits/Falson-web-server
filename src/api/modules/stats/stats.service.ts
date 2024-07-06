@@ -4,19 +4,18 @@ import { client } from 'src/discordjs/main';
 
 @Injectable()
 export class StatsService {
+  clientFetcher: ClientFetcher = new ClientFetcher(client);
 
-  clientFetcher: ClientFetcher = new ClientFetcher(client)
-
-  async botStats(): Promise<{guildCount: number, members: number}> {
-    const guilds = this.clientFetcher.getAllGuildsFromCache()
-    let memberCount: number = 0
+  botStats(): { guildCount: number; members: number } {
+    const guilds = this.clientFetcher.getAllGuildsFromCache();
+    let memberCount: number = 0;
     for (const [_, guild] of guilds) {
-      memberCount += guild.memberCount
+      memberCount += guild.memberCount;
     }
 
     return {
       guildCount: guilds.size,
-      members: memberCount
-    }
+      members: memberCount,
+    };
   }
 }

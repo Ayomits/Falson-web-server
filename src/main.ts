@@ -3,9 +3,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './api/app.module';
 import { config } from 'dotenv';
 import { discordjsInitialize } from './discordjs/main';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { LoggerRequestMiddleware } from './middlewares/LoggerRequestMiddleware';
 config();
 
 async function bootstrap() {
@@ -21,7 +22,8 @@ async function bootstrap() {
       skipUndefinedProperties: true,
     }),
   );
-
+  Logger
+  
   const corsOptions: CorsOptions = {
     origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',

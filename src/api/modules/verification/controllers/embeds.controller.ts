@@ -33,7 +33,7 @@ export class EmbedsController {
   }
 
   @Get(`:guildId/:objectId`)
-  async findCurrentEmbed(
+  findCurrentEmbed(
     @Param(`guildId`) guildId: string,
     @Param(`objectId`) objectId: Types.ObjectId,
   ) {

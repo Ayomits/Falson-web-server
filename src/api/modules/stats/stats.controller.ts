@@ -11,7 +11,7 @@ export class StatsController {
   /**
    * Статистика по боту
    */
-  async botStats() {
-    return await this.statsService.botStats()
+  botStats() {
+    return this.statsService.botStats()
   }
 }

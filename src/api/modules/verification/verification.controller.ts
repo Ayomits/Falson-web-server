@@ -9,13 +9,13 @@ export class VerificationController {
 
   @Get(`:guildId`)
   @UseGuards(MergedIsWhiteList)
-  async findVerification(@Param(`guildId`) guildId: string) {
-    return await this.verificationService.allVerifications(guildId);
+  findVerification(@Param(`guildId`) guildId: string) {
+    return this.verificationService.allVerifications(guildId);
   }
 
   @Patch(`:guildId/type`)
   @UseGuards(MergedIsWhiteList)
-  async updateVerificationType(
+  updateVerificationType(
     @Param(`guildId`) guildId: string,
     @Body() verificationType: VerificationTypeDto,
   ) {

@@ -11,28 +11,17 @@ import { MergedIsWhiteList } from '../../../guards';
 export class GuildsController {
   clientFetcher: ClientFetcher = new ClientFetcher(client);
 
-  @Get(`/`)
-  /**
-   * Выдача всех серверов из кеша discord.js клиента
-   */
-  async getAllGuilds() {
-    return await this.clientFetcher.fetchGuilds();
-  }
-
   @Get(`:guildId`)
-  @UseGuards(MergedIsWhiteList)
   async getGuild(@Param(`guildId`) guildId: string) {
     return await this.clientFetcher.fetchGuild(guildId);
   }
 
   @Get(`:guildId/roles`)
-  @UseGuards(MergedIsWhiteList)
   async getAllRoles(@Param('guildId') guildId: string) {
     return await this.clientFetcher.fetchRoles(guildId);
   }
 
   @Get(`:guildId/roles/:roleId`)
-  @UseGuards(MergedIsWhiteList)
   async getRoleById(
     @Param('guildId') guildId: string,
     @Param('roleId') roleId: string,
@@ -41,13 +30,11 @@ export class GuildsController {
   }
 
   @Get(`:guildId/channels`)
-  @UseGuards(MergedIsWhiteList)
   async getAllChannels(@Param('guildId') guildId: string) {
     return await this.clientFetcher.fetchAllGuildChannels(guildId);
   }
 
   @Get(`:guildId/channels/:channelId`)
-  @UseGuards(MergedIsWhiteList)
   async getChannelById(
     @Param('guildId') guildId: string,
     @Param(`channelId`) channelId: string,
@@ -56,13 +43,11 @@ export class GuildsController {
   }
 
   @Get(`:guildId/members`)
-  @UseGuards(MergedIsWhiteList)
   async allMembers(@Param('guildId') guildId: string) {
     return await this.clientFetcher.fetchMembers(guildId);
   }
 
   @Get(`:guildId/members/:memberId`)
-  @UseGuards(MergedIsWhiteList)
   async getMemberById(
     @Param('guildId') guildId: string,
     @Param(`memberId`) memberId: string,

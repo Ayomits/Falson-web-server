@@ -154,11 +154,14 @@ export class AuthService {
         type: verifyToken.type,
       });
 
-      return res.cookie('accessToken', tokens.accessToken, {
+      res.cookie('accessToken', tokens.accessToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: 15 * 60 * 1000, // 15 минут
+      });
+      return res.send({
+        accessToken: tokens.accessToken,
       });
     } catch {
       throw new UnauthorizedException(`Token expired`);
