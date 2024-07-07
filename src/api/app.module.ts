@@ -1,9 +1,7 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { CustomCacheInterceptor } from './interceptors/cache.interceptor';
 import {
   AuthModule,
   DiscordModule,
@@ -12,8 +10,6 @@ import {
   UsersModule,
   VerificationModule,
 } from './modules';
-import { LoggerRequestMiddleware } from 'src/middlewares/LoggerRequestMiddleware';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -38,11 +34,6 @@ import { LoggerRequestMiddleware } from 'src/middlewares/LoggerRequestMiddleware
     GuildSettingsModule,
   ],
   controllers: [],
-  providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CustomCacheInterceptor,
-    },
-  ],
+  providers: [],
 })
 export class AppModule {}
