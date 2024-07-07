@@ -125,8 +125,6 @@ export class EmbedService {
   private isDefaultEmbed(embed: any): boolean {
     return defaultEmbeds.some(
       (defaultEmbed) =>
-        defaultEmbed.title === embed.title &&
-        defaultEmbed.description === embed.description &&
         defaultEmbed.color === embed.color &&
         !embed.image &&
         !embed.author &&
