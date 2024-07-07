@@ -33,7 +33,7 @@ export class GuildSettingsService {
     )) as Guild;
     if (guildFromCache) return guildFromCache;
     const guildFromDb = await this.fetchByGuildId(guildId);
-    if (guildFromDb) this.cacheManager.set(guildId, guildFromDb);
+    if (guildFromDb) await this.cacheManager.set(guildId, guildFromDb);
     return guildFromDb;
   }
 
@@ -76,7 +76,7 @@ export class GuildSettingsService {
       },
       { new: true },
     );
-    this.cacheManager.set(guildId, newGuild);
+    await this.cacheManager.set(guildId, newGuild);
     return newGuild;
   }
 
@@ -92,7 +92,7 @@ export class GuildSettingsService {
       },
       { new: true },
     );
-    this.cacheManager.set(guildId, newGuild);
+    await this.cacheManager.set(guildId, newGuild);
     return newGuild;
   }
 
@@ -109,8 +109,8 @@ export class GuildSettingsService {
   async delete(guildId: string) {
     const guild = await this.findByGuildId(guildId);
     if (!guild) throw new BadRequestException(`This guild doesn't exists`);
-    this.cacheManager.del(guildId)
-    this.guildModel.deleteOne({ guildId });
-    return {message: "guild successfully deleted"};
+    await this.cacheManager.del(guildId);
+    await this.guildModel.deleteOne({ guildId });
+    return { message: 'guild successfully deleted' };
   }
 }

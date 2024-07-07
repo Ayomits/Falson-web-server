@@ -36,7 +36,7 @@ export class GuildPartnerService {
     const existed = this.cacheManager.get<GuildPartner>(`${guildId}-partner`);
     if (existed) return existed;
     const fetched = await this.fetchByGuildId(guildId);
-    if (fetched) this.cacheManager.set(`${guildId}-partner`, fetched);
+    if (fetched) await this.cacheManager.set(`${guildId}-partner`, fetched);
     return fetched;
   }
 
@@ -49,7 +49,7 @@ export class GuildPartnerService {
         ...dto,
         guildId: dto.guildId ? dto.guildId : verifiedGuild.id,
       });
-      this.cacheManager.set(`${verifiedGuild.id}-partner`, newGuild);
+      await this.cacheManager.set(`${verifiedGuild.id}-partner`, newGuild);
       return newGuild;
     }
     throw new BadRequestException(
@@ -67,7 +67,7 @@ export class GuildPartnerService {
         guildId: guildId,
       },
     );
-    this.cacheManager.set(`${guildId}-partner`, updated);
+    await this.cacheManager.set(`${guildId}-partner`, updated);
     return updated;
   }
 
@@ -75,7 +75,7 @@ export class GuildPartnerService {
     const existed = await this.findByGuildId(guildId);
     if (!existed) throw new BadRequestException(`This partner does not exists`);
     await this.guildPartnerModel.findByIdAndDelete(existed._id);
-    this.cacheManager.del(`${guildId}-partner`);
+    await this.cacheManager.del(`${guildId}-partner`);
     return { message: 'guild partner successfully deleted' };
   }
 }

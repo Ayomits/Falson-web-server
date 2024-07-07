@@ -20,12 +20,12 @@ export class GeneralService {
   async findByGuildId(guildId: string) {
     const cacheKey = `general_${guildId}`;
     const cacheVerification =
-      this.cacheManager.get<GeneralVerification>(cacheKey);
+      await this.cacheManager.get<GeneralVerification>(cacheKey);
     if (cacheVerification) return cacheVerification;
     const fetched = await this.fetchByGuildId(guildId);
     if (fetched) {
-      this.cacheManager.set(cacheKey, fetched);
-      this.cacheManager.set(fetched._id.toString(), fetched);
+      await this.cacheManager.set(cacheKey, fetched);
+      await this.cacheManager.set(fetched._id.toString(), fetched);
       return fetched;
     }
     return fetched;
@@ -38,7 +38,7 @@ export class GeneralService {
   async findById(id: Types.ObjectId) {
     const cacheKey = id.toString();
     const cacheVerification =
-      this.cacheManager.get<GeneralVerification>(cacheKey);
+      await this.cacheManager.get<GeneralVerification>(cacheKey);
     if (cacheVerification) return cacheVerification;
     return await this.generalVerification.findById(id);
   }
@@ -48,8 +48,8 @@ export class GeneralService {
     if (existedSettings)
       throw new BadRequestException(`This settings already exists`);
     const newVerification = await this.generalVerification.create(dto);
-    this.cacheManager.set(newVerification._id.toString(), newVerification);
-    this.cacheManager.set(`general_${dto.guildId}`, newVerification);
+    await this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(`general_${dto.guildId}`, newVerification);
     return newVerification;
   }
 
@@ -71,8 +71,8 @@ export class GeneralService {
       { ...(res as any), guildId: guildId },
       { new: true },
     );
-    this.cacheManager.set(newVerification._id.toString(), newVerification);
-    this.cacheManager.set(`general_${guildId}`, newVerification);
+    await this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(`general_${guildId}`, newVerification);
     return newVerification;
   }
 
@@ -80,8 +80,8 @@ export class GeneralService {
     const existedSettings = await this.findByGuildId(guildId);
     if (!existedSettings)
       throw new BadRequestException(`This settings does not exists`);
-    this.cacheManager.del(`general_${guildId}`);
-    this.cacheManager.del(existedSettings._id.toString());
+    await this.cacheManager.del(`general_${guildId}`);
+    await this.cacheManager.del(existedSettings._id.toString());
     this.generalVerification.findByIdAndDelete(existedSettings._id);
     return { message: `succesfully deleted` };
   }

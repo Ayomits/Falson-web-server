@@ -23,8 +23,8 @@ export class TraditionVerificationService {
     if (cacheVerification) return cacheVerification;
     const fetched = await this.fetchByGuildId(guildId);
     if (fetched) {
-      this.cacheManager.set(cacheKey, fetched);
-      this.cacheManager.set(fetched._id.toString(), fetched);
+      await this.cacheManager.set(cacheKey, fetched);
+      await this.cacheManager.set(fetched._id.toString(), fetched);
       return fetched;
     }
     return fetched;
@@ -60,8 +60,8 @@ export class TraditionVerificationService {
     if (existedSettings)
       throw new BadRequestException(`This settings already exists`);
     const newVerification = await this.traditionVerificationModel.create(dto);
-    this.cacheManager.set(newVerification._id.toString(), newVerification);
-    this.cacheManager.set(`tradition_${dto.guildId}`, newVerification);
+    await this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(`tradition_${dto.guildId}`, newVerification);
     return newVerification;
   }
 
@@ -83,8 +83,8 @@ export class TraditionVerificationService {
         { ...dto, guildId: guildId },
         { new: true },
       );
-    this.cacheManager.set(newVerification._id.toString(), newVerification);
-    this.cacheManager.set(`tradition_${guildId}`, newVerification);
+    await this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(`tradition_${guildId}`, newVerification);
     return newVerification;
   }
 
@@ -92,8 +92,8 @@ export class TraditionVerificationService {
     const existedSettings = await this.findByGuildId(guildId);
     if (!existedSettings)
       throw new BadRequestException(`This settings does not exists`);
-    this.cacheManager.del(`tradition_${guildId}`);
-    this.cacheManager.del(existedSettings._id.toString());
+    await this.cacheManager.del(`tradition_${guildId}`);
+    await this.cacheManager.del(existedSettings._id.toString());
     await this.traditionVerificationModel.deleteOne({ guildId });
     return { message: `successfully deleted` };
   }

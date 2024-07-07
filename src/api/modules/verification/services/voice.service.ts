@@ -21,8 +21,8 @@ export class VoiceVerificationService {
     if (cacheVerification) return cacheVerification;
     const fetched = await this.fetchByGuildId(guildId);
     if (fetched) {
-      this.cacheManager.set(fetched._id.toString(), fetched);
-      this.cacheManager.set(cacheKey, fetched);
+      await this.cacheManager.set(fetched._id.toString(), fetched);
+      await this.cacheManager.set(cacheKey, fetched);
       return fetched;
     }
     return fetched;
@@ -44,8 +44,11 @@ export class VoiceVerificationService {
     if (existedSettings)
       throw new BadRequestException(`This settings already exists`);
     const newVerification = await this.voiceVerification.create(dto);
-    this.cacheManager.set(`voice_${dto.guildId}`, newVerification);
-    this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(`voice_${dto.guildId}`, newVerification);
+    await this.cacheManager.set(
+      newVerification._id.toString(),
+      newVerification,
+    );
     return newVerification;
   }
 
@@ -58,8 +61,11 @@ export class VoiceVerificationService {
       { ...dto, guildId: guildId },
       { new: true },
     );
-    this.cacheManager.set(`voice_${guildId}`, newVerification);
-    this.cacheManager.set(existedSettings._id.toString(), newVerification);
+    await this.cacheManager.set(`voice_${guildId}`, newVerification);
+    await this.cacheManager.set(
+      existedSettings._id.toString(),
+      newVerification,
+    );
     return newVerification;
   }
 
@@ -68,8 +74,8 @@ export class VoiceVerificationService {
     if (!existedSettings)
       throw new BadRequestException(`This settings does not exists`);
     await this.voiceVerification.findByIdAndDelete(existedSettings._id);
-    this.cacheManager.del(`voice_${guildId}`);
-    this.cacheManager.del(existedSettings._id.toString());
+    await this.cacheManager.del(`voice_${guildId}`);
+    await this.cacheManager.del(existedSettings._id.toString());
     return { message: `successfully delete` };
   }
 }

@@ -91,7 +91,7 @@ export class VerificationService {
       },
       { new: true },
     );
-    this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(newVerification._id.toString(), newVerification);
     return newVerification;
   }
 }

@@ -15,6 +15,9 @@ import { GuildDto } from './dto/guild.dto';
 import { LanguagesDto } from './dto/language.dto';
 import { MergedIsOwner, MergedIsWhiteList } from '../../guards';
 import { IsBotGuard } from '../../guards/isBot.guard';
+import { MergedUserTypeGuard } from 'src/api/guards/merged/mergedUserType.guard';
+import { UserType } from 'src/api/common/types/user';
+import { UserTypeDecorator } from 'src/api/guards/UserType.guard';
 
 @Controller('guild-settings')
 export class GuildSettingsController {
@@ -48,6 +51,13 @@ export class GuildSettingsController {
     @Body() languages: LanguagesDto,
   ) {
     return this.guildSettingsService.updateLanguage(guildId, languages);
+  }
+
+  @Patch(`:guildId`)
+  @UserTypeDecorator(UserType.developer)
+  @UseGuards(MergedUserTypeGuard)
+  updateGuild(@Param(`guildId`) guildId: string, @Body() dto: GuildDto) {
+    return this.guildSettingsService.updateOne(guildId, dto);
   }
 
   @Delete(`:guildId`)

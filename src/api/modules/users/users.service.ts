@@ -77,7 +77,7 @@ export class UsersService {
           accessToken,
           refreshToken,
         });
-        this.cacheManager.set(`${userId}-guilds`, guilds, 10_000);
+        await this.cacheManager.set(`${userId}-guilds`, guilds, 10_000);
         return guilds;
       } catch {
         return this.findUserGuilds(userId, count + 1);
@@ -174,7 +174,7 @@ export class UsersService {
     }
     const userFromDb = await this.fetchByUserId(userId);
     if (userFromDb) {
-      this.cacheManager.set(userId, userFromDb);
+      await this.cacheManager.set(userId, userFromDb);
     }
     return userFromDb;
   }
@@ -208,7 +208,7 @@ export class UsersService {
         userId: existedUser.userId,
         type: existedUser ? existedUser.type : UserType.everyone,
       });
-      this.cacheManager.set(existedUser.userId, newUser);
+      await this.cacheManager.set(existedUser.userId, newUser);
     } else {
       return this.create({ ...userSchema, type: UserType.everyone });
     }
@@ -278,7 +278,7 @@ export class UsersService {
       { new: true },
     );
 
-    this.cacheManager.set(userId, updatedUser);
+    await this.cacheManager.set(userId, updatedUser);
 
     return updatedUser;
   }
@@ -286,7 +286,7 @@ export class UsersService {
   async deleteOne(userId: string) {
     const existedUser = await this.findByUserId(userId);
     if (!existedUser) throw new BadRequestException(`This user does not exist`);
-    this.cacheManager.del(userId);
+    await this.cacheManager.del(userId);
     return await this.userModel.deleteOne({ userId: userId });
   }
   /**
