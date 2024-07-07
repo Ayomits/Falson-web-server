@@ -111,6 +111,6 @@ export class GuildSettingsService {
     if (!guild) throw new BadRequestException(`This guild doesn't exists`);
     this.cacheManager.del(guildId)
     this.guildModel.deleteOne({ guildId });
-    return [];
+    return {message: "guild successfully deleted"};
   }
 }

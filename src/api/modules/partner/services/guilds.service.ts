@@ -74,8 +74,8 @@ export class GuildPartnerService {
   async delete(guildId: string) {
     const existed = await this.findByGuildId(guildId);
     if (!existed) throw new BadRequestException(`This partner does not exists`);
-    this.guildPartnerModel.findByIdAndDelete(existed._id);
+    await this.guildPartnerModel.findByIdAndDelete(existed._id);
     this.cacheManager.del(`${guildId}-partner`);
-    return;
+    return { message: 'guild partner successfully deleted' };
   }
 }

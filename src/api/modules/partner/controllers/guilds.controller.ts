@@ -15,6 +15,7 @@ import {
 } from 'src/api/guards/UserType.guard';
 import { UserType } from 'src/api/common/types/user';
 import { GuildPartnerService } from '../services/guilds.service';
+import { MergedUserTypeGuard } from 'src/api/guards/merged/mergedUserType.guard';
 
 @Controller(`partners/guilds`)
 export class GuildPartnersController {
@@ -32,14 +33,14 @@ export class GuildPartnersController {
 
   @Post()
   @UserTypeDecorator(UserType.developer)
-  @UseGuards(UserTypeGuard)
+  @UseGuards(MergedUserTypeGuard)
   createGuildPartner(@Body() dto: GuildPartnerDto) {
     return this.guildPartnerService.create(dto);
   }
 
   @Patch(`guilds/:guildId`)
   @UserTypeDecorator(UserType.developer)
-  @UseGuards(UserTypeGuard)
+  @UseGuards(MergedUserTypeGuard)
   updateGuildPartner(
     @Param(`guildId`) guildId: string,
     @Body() dto: GuildPartnerDto,
@@ -49,7 +50,7 @@ export class GuildPartnersController {
 
   @Delete(`guilds/:guildId`)
   @UserTypeDecorator(UserType.developer)
-  @UseGuards(UserTypeGuard)
+  @UseGuards(MergedUserTypeGuard)
   deleteGuildPartner(@Param(`guildId`) guildId: string) {
     return this.guildPartnerService.delete(guildId);
   }

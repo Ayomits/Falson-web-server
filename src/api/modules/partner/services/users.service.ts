@@ -56,6 +56,7 @@ export class UserPartnersService {
     const existed = await this.findByUserId(userId);
     if (!existed) throw new BadRequestException(`This partner does not exist`);
     this.cacheManager.del(`${userId}-partner`);
-    return await this.userPartnerModel.findByIdAndDelete(existed._id);
+    await this.userPartnerModel.findByIdAndDelete(existed._id);
+    return { message: `user partner successfully deleted` };
   }
 }
