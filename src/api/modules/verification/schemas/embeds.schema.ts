@@ -4,7 +4,6 @@ import { SchemasName } from 'src/api/common';
 
 @Schema()
 export class Embed extends Document {
-
   @Prop({ ref: SchemasName.Guilds, type: String })
   guildId: string;
 
@@ -55,6 +54,9 @@ export class Embed extends Document {
     url: string;
     text: string;
   };
+
+  @Prop({ type: Date, default: new Date() })
+  createdAt: Date;
 }
 
 export const EmbedSchema = SchemaFactory.createForClass(Embed);

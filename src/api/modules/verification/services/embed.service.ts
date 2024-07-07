@@ -30,7 +30,9 @@ export class EmbedService {
     let embeds = await this.cacheManager.get<EmbedModel[]>(cacheKey);
 
     if (!embeds) {
-      embeds = await this.embedModel.find({ guildId });
+      embeds = await this.embedModel
+        .find({ guildId })
+        .sort({ ['createdAt']: 1 });
       await this.cacheManager.set(cacheKey, embeds, 600_000);
     }
 
