@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Guild } from '../../guild-settings/schemas/guilds.schema';
-import { Embed } from './embeds.schema';
 import { SchemasName } from 'src/api/common';
 
 @Schema({  })
