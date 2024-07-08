@@ -3,7 +3,7 @@ import { MergedIsWhiteList } from 'src/api/guards';
 import { LogService } from '../services/logs.service';
 import { LogsDto } from '../dto/logs.dto';
 
-@Controller('logs')
+@Controller('verifications/logs')
 export class LogsController {
   constructor(private logService: LogService) {}
 
