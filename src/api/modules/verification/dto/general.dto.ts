@@ -1,17 +1,15 @@
-import { IsString, IsTaxId, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsString,
+  IsTaxId,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import { VerificationType } from 'src/api/common';
 
 export class GeneralVerificationDto {
   @IsTaxId()
   guildId: string;
-
-  @IsString()
-  feedbacksLog?: string;
-
-  @IsString()
-  acceptionLog?: string;
-
-  @IsString()
-  verificationLog?: string;
 
   @IsString({ each: true })
   @MaxLength(25)
@@ -19,5 +17,8 @@ export class GeneralVerificationDto {
   verificationRoles?: string[];
 
   @IsString()
-  unverifyRole?: string
+  unverifyRole?: string;
+
+  @IsEnum(VerificationType)
+  verificationType: number;
 }

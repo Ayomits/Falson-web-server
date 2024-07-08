@@ -9,4 +9,5 @@ export enum SchemasName {
   AllVerifications = `verifications`,
   UserPartner = 'partner_users',
   GuildPartner = 'partner_guilds',
+  VerificationLogs = 'logs_verification',
 }

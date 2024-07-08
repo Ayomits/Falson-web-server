@@ -1,28 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { SchemasName } from 'src/api/common';
+import { SchemasName, VerificationType } from 'src/api/common';
 
 @Schema()
 export class GeneralVerification extends Document {
   @Prop({ required: true, ref: SchemasName.Guilds, unique: true })
   guildId: string;
-  /**
-   * Логи отзывов для голосовой верификации
-   */
-  @Prop({ type: String, default: null, required: false })
-  feedbacksLog: string;
-
-  /**
-   * Логи принятий в стафф для голосовой верификации
-   */
-  @Prop({ type: String, default: null, required: false })
-  acceptionLog: string;
-
-  /**
-   * Логи для верефицированных
-   */
-  @Prop({ type: String, default: null, required: false })
-  verificationLog: string;
 
   /**
    * Роли верификации
@@ -33,6 +16,9 @@ export class GeneralVerification extends Document {
 
   @Prop({ type: String, required: false })
   unverifyRole: string;
+
+  @Prop({type: Number, required: true, default: VerificationType.Traditional})
+  type: number
 }
 
 export const GeneralVerificationSchema =

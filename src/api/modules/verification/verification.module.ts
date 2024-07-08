@@ -23,6 +23,9 @@ import {
   TraditionController,
   VoiceController,
 } from './controllers';
+import { LogSchema } from './schemas/logs.schema';
+import { LogsController } from './controllers/logs.controller';
+import { LogService } from './services/logs.service';
 
 @Module({
   imports: [
@@ -47,9 +50,13 @@ import {
         name: SchemasName.AllVerifications,
         schema: VerificationSchema,
       },
+      {
+        name: SchemasName.VerificationLogs,
+        schema: LogSchema,
+      },
     ]),
     GuildSettingsModule,
-    AuthModule
+    AuthModule,
   ],
   providers: [
     VerificationService,
@@ -57,6 +64,7 @@ import {
     VoiceVerificationService,
     TraditionVerificationService,
     GeneralService,
+    LogService,
   ],
   controllers: [
     VerificationController,
@@ -64,6 +72,7 @@ import {
     EmbedsController,
     TraditionController,
     VoiceController,
+    LogsController,
   ],
   exports: [VerificationModule],
 })

@@ -28,8 +28,8 @@ export class Verification extends Document {
   })
   generalVerification: Types.ObjectId;
 
-  @Prop({ default: VerificationType.Traditional, required: true, type: Number })
-  type: number;
+  @Prop({ ref: SchemasName.VerificationLogs })
+  logs: Types.ObjectId
 }
 
 export const VerificationSchema = SchemaFactory.createForClass(Verification);
