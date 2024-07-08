@@ -1,11 +1,21 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralVerificationDto } from '../dto/general.dto';
 import { GeneralVerification, Verification } from '../schemas';
-import { ClientFetcher, SchemasName } from 'src/api/common';
+import {
+  ClientFetcher,
+  GuildType,
+  SchemasName,
+  VerificationType,
+} from 'src/api/common';
 import { Model, Types } from 'mongoose';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { client } from 'src/discordjs/main';
 import { Cache } from '@nestjs/cache-manager';
+import { GuildSettingsService } from '../../guild-settings/guild-settings.service';
 
 @Injectable()
 export class GeneralService {
@@ -15,6 +25,7 @@ export class GeneralService {
     @InjectModel(SchemasName.GeneralVerification)
     private generalVerification: Model<GeneralVerification>,
     private cacheManager: Cache,
+    private guildService: GuildSettingsService,
   ) {}
 
   async findByGuildId(guildId: string) {
@@ -48,13 +59,22 @@ export class GeneralService {
     if (existedSettings)
       throw new BadRequestException(`This settings already exists`);
     const newVerification = await this.generalVerification.create(dto);
-    await this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(
+      newVerification._id.toString(),
+      newVerification,
+    );
     await this.cacheManager.set(`general_${dto.guildId}`, newVerification);
     return newVerification;
   }
 
   async update(guildId: string, dto: GeneralVerificationDto) {
     const existedSettings = await this.findByGuildId(guildId);
+    const guild = await this.guildService.findByGuildId(guildId);
+    if (
+      dto.verificationType >= VerificationType.Both &&
+      guild.type < GuildType.Premium
+    )
+      throw new ForbiddenException(``);
     if (!existedSettings)
       throw new BadRequestException(`This settings does not exists`);
     const res = {};
@@ -69,9 +89,12 @@ export class GeneralService {
     const newVerification = await this.generalVerification.findByIdAndUpdate(
       existedSettings._id,
       { ...(res as any), guildId: guildId },
-      { new: true },
+      { new: true, upsert: true },
     );
-    await this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(
+      newVerification._id.toString(),
+      newVerification,
+    );
     await this.cacheManager.set(`general_${guildId}`, newVerification);
     return newVerification;
   }

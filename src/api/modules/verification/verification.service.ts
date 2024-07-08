@@ -11,6 +11,7 @@ import { plainToInstance } from 'class-transformer';
 import { VerificationResponse } from './dto/fullResponse.dto';
 import { VerificationTypeDto } from './dto/verificationtype.dto';
 import { Cache } from '@nestjs/cache-manager';
+import { LogService } from './services/logs.service';
 
 @Injectable()
 export class VerificationService {
@@ -22,6 +23,8 @@ export class VerificationService {
     private traditionService: TraditionVerificationService,
     private voiceService: VoiceVerificationService,
     private generalService: GeneralService,
+    private logService: LogService,
+
     private cacheManager: Cache,
   ) {}
 
@@ -35,22 +38,53 @@ export class VerificationService {
 
   async createDefaultSettings(guildId: string) {
     const existed = await this.findByGuildId(guildId);
-    if (existed) throw new BadRequestException(`This settings already exists`);
-    const [_, tradition, voice, general] = await Promise.all([
-      this.embedService.create(guildId, {
-        ...defaultEmbeds[0],
-        guildId: guildId,
-      }),
+
+    const results = await Promise.allSettled([
+      this.embedService.createIfNot(guildId),
       this.traditionService.create({ guildId: guildId }),
       this.voiceService.create({ guildId: guildId }),
       this.generalService.create({ guildId: guildId }),
+      this.logService.create({ guildId: guildId }),
     ]);
-    return await this.verificationModel.create({
-      guildId: guildId,
-      voiceVerification: voice?._id,
-      tradionVerification: tradition?._id,
-      generalVerification: general?._id,
-    });
+
+    const [_, traditionResult, voiceResult, generalResult, logsResult] =
+      results;
+
+    const traditionId =
+      traditionResult.status === 'fulfilled'
+        ? traditionResult.value._id
+        : existed?.tradionVerification;
+    const voiceId =
+      voiceResult.status === 'fulfilled'
+        ? voiceResult.value._id
+        : existed?.voiceVerification;
+    const generalId =
+      generalResult.status === 'fulfilled'
+        ? generalResult.value._id
+        : existed?.generalVerification;
+    const logsId =
+      logsResult.status === 'fulfilled' ? logsResult.value._id : existed?.logs;
+
+    if (existed) {
+      return await this.verificationModel.updateOne(
+        { guildId: guildId },
+        {
+          tradionVerification: traditionId,
+          voiceVerification: voiceId,
+          generalVerification: generalId,
+          logs: logsId,
+        },
+      );
+    } else {
+      // Иначе создать новые настройки
+      return await this.verificationModel.create({
+        guildId: guildId,
+        tradionVerification: traditionId,
+        voiceVerification: voiceId,
+        generalVerification: generalId,
+        logs: logsId,
+      });
+    }
   }
 
   async findByGuildId(guildId: string) {
@@ -64,34 +98,21 @@ export class VerificationService {
   async allVerifications(guildId: string) {
     const verification = await this.findByGuildId(guildId);
     if (!verification) throw new BadRequestException(`This settings not found`);
-    const [embeds, voice, general, tradition] = await Promise.all([
+    const [embeds, voice, general, tradition, logs] = await Promise.all([
       this.embedService.findByGuildId(guildId),
       this.voiceService.findById(verification.voiceVerification),
       this.generalService.findById(verification.generalVerification),
       this.traditionService.findById(verification.tradionVerification),
+      this.logService.findByGuildId(guildId),
     ]);
     const response = {
       tradition,
       embeds,
       voice,
       general,
+      logs
     };
 
     return plainToInstance(VerificationResponse, response);
-  }
-
-  async updateVerificationType(guildId: string, dto: VerificationTypeDto) {
-    const guild = await this.findByGuildId(guildId);
-    if (!guild)
-      throw new BadRequestException(`Settings for this guild does not exists`);
-    const newVerification = await this.verificationModel.findByIdAndUpdate(
-      guild._id,
-      {
-        ...dto,
-      },
-      { new: true },
-    );
-    await this.cacheManager.set(newVerification._id.toString(), newVerification);
-    return newVerification;
   }
 }

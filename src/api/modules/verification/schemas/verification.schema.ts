@@ -4,7 +4,7 @@ import { SchemasName, VerificationType } from 'src/api/common';
 
 @Schema()
 export class Verification extends Document {
-  @Prop({ ref: SchemasName.Guilds, type: String, required: true })
+  @Prop({ ref: SchemasName.Guilds, type: String, required: true, unique: true })
   guildId: String;
 
   @Prop({

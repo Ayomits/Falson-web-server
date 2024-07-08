@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Logs extends Document {
-  @Prop({ type: String, default: null, required: true })
+  @Prop({ type: String, default: null, required: true, unique: true })
   guildId: string;
   /**
    * Логи отзывов для голосовой верификации

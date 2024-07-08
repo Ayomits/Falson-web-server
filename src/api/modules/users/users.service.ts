@@ -275,7 +275,7 @@ export class UsersService {
     const updatedUser = await this.userModel.findOneAndUpdate(
       { userId: userId },
       { $set: newSchema },
-      { new: true },
+      { new: true, upsert: true },
     );
 
     await this.cacheManager.set(userId, updatedUser);

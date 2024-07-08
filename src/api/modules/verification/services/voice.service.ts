@@ -59,7 +59,7 @@ export class VoiceVerificationService {
     const newVerification = await this.voiceVerification.findByIdAndUpdate(
       existedSettings._id,
       { ...dto, guildId: guildId },
-      { new: true },
+      { new: true, upsert: true },
     );
     await this.cacheManager.set(`voice_${guildId}`, newVerification);
     await this.cacheManager.set(

@@ -81,7 +81,7 @@ export class TraditionVerificationService {
       await this.traditionVerificationModel.findByIdAndUpdate(
         existedSettings._id,
         { ...dto, guildId: guildId },
-        { new: true },
+        { new: true, upsert: true },
       );
     await this.cacheManager.set(newVerification._id.toString(), newVerification);
     await this.cacheManager.set(`tradition_${guildId}`, newVerification);

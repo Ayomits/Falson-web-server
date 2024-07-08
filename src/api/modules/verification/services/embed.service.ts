@@ -89,6 +89,18 @@ export class EmbedService {
     return newEmbed;
   }
 
+  async createIfNot(guildId: string) {
+    const cache = await this.cacheManager.get(`embeds:${guildId}`);
+    if (cache) return false;
+    const embeds = await this.findByGuildId(guildId);
+    if (embeds.length > 0) return false;
+    const newEmbed = await this.create(guildId, {
+      guildId: guildId,
+      ...defaultEmbeds[0],
+    });
+    return newEmbed;
+  }
+
   async update(guildId: string, id: Types.ObjectId, dto: EmbedDto) {
     const guild = await this.guildService.findByGuildId(guildId);
     const cleanedDto = validateProperties<EmbedDto>(
@@ -104,7 +116,7 @@ export class EmbedService {
     const updatedEmbed = await this.embedModel.findByIdAndUpdate(
       id,
       { ...cleanedDto, guildId: guildId },
-      { new: true },
+      { new: true, upsert: true },
     );
 
     await this.cacheManager.del(`embed:${guildId}:${id.toString()}`);

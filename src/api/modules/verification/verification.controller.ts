@@ -13,12 +13,4 @@ export class VerificationController {
     return this.verificationService.allVerifications(guildId);
   }
 
-  @Patch(`:guildId/type`)
-  @UseGuards(MergedIsWhiteList)
-  updateVerificationType(
-    @Param(`guildId`) guildId: string,
-    @Body() verificationType: VerificationTypeDto,
-  ) {
-    return this.verificationService.updateVerificationType(guildId, verificationType)
-  }
 }

@@ -74,7 +74,7 @@ export class GuildSettingsService {
           ),
         },
       },
-      { new: true },
+      { new: true, upsert: true },
     );
     await this.cacheManager.set(guildId, newGuild);
     return newGuild;
@@ -90,10 +90,16 @@ export class GuildSettingsService {
           ...dto,
         },
       },
-      { new: true },
+      { new: true, upsert: true },
     );
     await this.cacheManager.set(guildId, newGuild);
     return newGuild;
+  }
+
+  async createOrUpdate(dto: GuildDto) {
+    const guild = await this.findByGuildId(dto.guildId);
+    if (guild) return this.updateOne(dto.guildId, {});
+    return this.create(dto);
   }
 
   async updateLanguage(guildId: string, dto: LanguagesDto) {
