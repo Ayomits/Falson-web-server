@@ -41,10 +41,10 @@ export class VerificationService {
 
     const results = await Promise.allSettled([
       this.embedService.createIfNot(guildId),
-      this.traditionService.create({ guildId: guildId }),
-      this.voiceService.create({ guildId: guildId }),
-      this.generalService.create({ guildId: guildId }),
-      this.logService.create({ guildId: guildId }),
+      this.traditionService.createOrUpdate(guildId),
+      this.voiceService.createOrUpdate(guildId),
+      this.generalService.createOrUpdate(guildId),
+      this.logService.createOrUpdate(guildId),
     ]);
 
     const [_, traditionResult, voiceResult, generalResult, logsResult] =
@@ -110,7 +110,7 @@ export class VerificationService {
       embeds,
       voice,
       general,
-      logs
+      logs,
     };
 
     return plainToInstance(VerificationResponse, response);

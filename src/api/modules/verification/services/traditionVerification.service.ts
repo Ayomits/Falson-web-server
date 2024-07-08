@@ -88,6 +88,12 @@ export class TraditionVerificationService {
     return newVerification;
   }
 
+  async createOrUpdate(guildId: string) {
+    const existed = await this.findByGuildId(guildId);
+    if (existed) return this.update(guildId, { guildId: guildId });
+    return this.create({ guildId: guildId });
+  }
+
   async delete(guildId: string) {
     const existedSettings = await this.findByGuildId(guildId);
     if (!existedSettings)

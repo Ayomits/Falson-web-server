@@ -17,6 +17,13 @@ export class ReadyService {
   async collectAllGuilds() {
     const verificationService = this.app.get(VerificationService);
     const guildService = this.app.get(GuildSettingsService);
-    
+    this.client.guilds.cache.map(async guild => {
+      try{
+        await Promise.allSettled([
+          guildService.createOrUpdate({guildId: guild.id}),
+          verificationService.createDefaultSettings(guild.id)
+        ])
+      }catch{}
+    })
   }
 }
