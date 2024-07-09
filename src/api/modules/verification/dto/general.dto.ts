@@ -1,4 +1,6 @@
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
   IsEnum,
   IsString,
   IsTaxId,
@@ -12,8 +14,8 @@ export class GeneralVerificationDto {
   guildId: string;
 
   @IsString({ each: true })
-  @MaxLength(25)
-  @MinLength(1)
+  @ArrayMinSize(1)
+  @ArrayMaxSize(25)
   verificationRoles?: string[];
 
   @IsString()
