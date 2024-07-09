@@ -7,7 +7,6 @@ import {
   EmbedSchema,
   GeneralVerificationSchema,
   TradionVerificationSchema,
-  VerificationSchema,
   VoiceVerificationSchema,
 } from './schemas';
 import { AuthModule, GuildSettingsModule } from '../';
@@ -45,10 +44,6 @@ import { LogService } from './services/logs.service';
       {
         name: SchemasName.TradionVerification,
         schema: TradionVerificationSchema,
-      },
-      {
-        name: SchemasName.AllVerifications,
-        schema: VerificationSchema,
       },
       {
         name: SchemasName.VerificationLogs,

@@ -20,5 +20,5 @@ export class GeneralVerificationDto {
   unverifyRole?: string;
 
   @IsEnum(VerificationType)
-  verificationType?: VerificationType;
+  type?: VerificationType;
 }

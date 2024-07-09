@@ -42,6 +42,7 @@ export class LogService {
     }
     const updated = await this.logModel.findOneAndUpdate(existed._id, dto, {
       new: true,
+      upsert: true,
     });
     await this.cacheManager.set(`${guildId}-logs`, updated);
     return updated;
@@ -49,7 +50,7 @@ export class LogService {
 
   async createOrUpdate(guildId: string) {
     const existed = await this.findByGuildId(guildId);
-    if (existed) return this.update(guildId, { guildId: guildId });
-    return this.create({ guildId: guildId });
+    if (existed) return await this.update(guildId, { guildId: guildId });
+    return await this.create({ guildId: guildId });
   }
 }

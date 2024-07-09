@@ -48,9 +48,7 @@ export class TraditionVerificationService {
   }
 
   async create(dto: TradionVerificationDto) {
-    const existedSettings = await this.traditionVerificationModel.findOne({
-      guildId: dto.guildId,
-    });
+    const existedSettings = await this.findByGuildId(dto.guildId);
     const guild = await this.guildService.findByGuildId(dto.guildId);
     if (guild?.type < GuildType.Premium && dto.isDouble) {
       throw new BadRequestException(
@@ -60,7 +58,10 @@ export class TraditionVerificationService {
     if (existedSettings)
       throw new BadRequestException(`This settings already exists`);
     const newVerification = await this.traditionVerificationModel.create(dto);
-    await this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(
+      newVerification._id.toString(),
+      newVerification,
+    );
     await this.cacheManager.set(`tradition_${dto.guildId}`, newVerification);
     return newVerification;
   }
@@ -83,15 +84,20 @@ export class TraditionVerificationService {
         { ...dto, guildId: guildId },
         { new: true, upsert: true },
       );
-    await this.cacheManager.set(newVerification._id.toString(), newVerification);
+    await this.cacheManager.set(
+      newVerification._id.toString(),
+      newVerification,
+    );
     await this.cacheManager.set(`tradition_${guildId}`, newVerification);
     return newVerification;
   }
 
   async createOrUpdate(guildId: string) {
     const existed = await this.findByGuildId(guildId);
-    if (existed) return this.update(guildId, { guildId: guildId });
-    return this.create({ guildId: guildId });
+    if (existed) {
+      return await this.update(guildId, { guildId: guildId });
+    }
+    return await this.create({ guildId: guildId });
   }
 
   async delete(guildId: string) {

@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { GeneralVerificationDto } from '../dto/general.dto';
-import { GeneralVerification, Verification } from '../schemas';
+import { GeneralVerification } from '../schemas';
 import {
   ClientFetcher,
   GuildType,
@@ -16,6 +16,7 @@ import {
 import { client } from 'src/discordjs/main';
 import { Cache } from '@nestjs/cache-manager';
 import { GuildSettingsService } from '../../guild-settings/guild-settings.service';
+import { isArray } from 'class-validator';
 
 @Injectable()
 export class GeneralService {
@@ -32,18 +33,20 @@ export class GeneralService {
     const cacheKey = `general_${guildId}`;
     const cacheVerification =
       await this.cacheManager.get<GeneralVerification>(cacheKey);
-    if (cacheVerification) return cacheVerification;
+    if (cacheVerification) {
+      return cacheVerification;
+    }
     const fetched = await this.fetchByGuildId(guildId);
     if (fetched) {
       await this.cacheManager.set(cacheKey, fetched);
       await this.cacheManager.set(fetched._id.toString(), fetched);
       return fetched;
     }
-    return fetched;
   }
 
   async fetchByGuildId(guildId: string) {
-    return await this.generalVerification.findOne({ guildId });
+    const result = await this.generalVerification.findOne({ guildId: guildId });
+    return result;
   }
 
   async findById(id: Types.ObjectId) {
@@ -70,27 +73,33 @@ export class GeneralService {
   async update(guildId: string, dto: GeneralVerificationDto) {
     const existedSettings = await this.findByGuildId(guildId);
     const guild = await this.guildService.findByGuildId(guildId);
-    if (
-      dto.verificationType >= VerificationType.Both &&
-      guild.type < GuildType.Premium
-    )
-      throw new ForbiddenException(``);
+
     if (!existedSettings)
       throw new BadRequestException(`This settings does not exists`);
+    if (dto.type >= VerificationType.Both && guild?.type < GuildType.Premium)
+      throw new ForbiddenException(`This guild cannot do this`);
     const res = {};
 
     Object.keys(dto).forEach((key) => {
-      if (dto[key] !== undefined) {
-        res[key] = dto[key]
-          .map((role) => this.clientFetcher.getRoleFromCache(guildId, role))
-          .filter((role) => role !== null || role !== undefined);
-      }
+      try {
+        if (dto[key] !== undefined) {
+          if (isArray(dto[key])) {
+            res[key] = dto[key].filter((item) =>
+              this.clientFetcher.getRoleFromCache(item, guildId),
+            );
+            return;
+          }
+          res[key] = dto[key];
+          return;
+        }
+      } catch {}
     });
     const newVerification = await this.generalVerification.findByIdAndUpdate(
       existedSettings._id,
       { ...(res as any), guildId: guildId },
       { new: true, upsert: true },
     );
+
     await this.cacheManager.set(
       newVerification._id.toString(),
       newVerification,
