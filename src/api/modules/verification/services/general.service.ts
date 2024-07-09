@@ -84,8 +84,8 @@ export class GeneralService {
       try {
         if (dto[key] !== undefined) {
           if (isArray(dto[key])) {
-            res[key] = dto[key].filter((item) =>
-              this.clientFetcher.getRoleFromCache(item, guildId),
+            res[key] = dto[key].filter(
+              async (item) => await this.clientFetcher.fetchRole(guildId, item),
             );
             return;
           }
@@ -94,6 +94,7 @@ export class GeneralService {
         }
       } catch {}
     });
+    console.log(res);
     const newVerification = await this.generalVerification.findByIdAndUpdate(
       existedSettings._id,
       { ...(res as any), guildId: guildId },
