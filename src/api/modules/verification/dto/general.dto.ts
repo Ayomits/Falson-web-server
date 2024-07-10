@@ -14,7 +14,6 @@ export class GeneralVerificationDto {
   guildId: string;
 
   @IsString({ each: true })
-  @ArrayMinSize(1)
   @ArrayMaxSize(25)
   verificationRoles?: string[];
 

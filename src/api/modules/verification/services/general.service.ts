@@ -94,7 +94,6 @@ export class GeneralService {
         }
       } catch {}
     });
-    console.log(res);
     const newVerification = await this.generalVerification.findByIdAndUpdate(
       existedSettings._id,
       { ...(res as any), guildId: guildId },
