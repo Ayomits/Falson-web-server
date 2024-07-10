@@ -1,4 +1,11 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsString, Max, MaxLength } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsString,
+  Max,
+  MaxLength,
+} from 'class-validator';
 
 export class VoiceVerificationDto {
   @IsString()
@@ -20,9 +27,7 @@ export class VoiceVerificationDto {
   verificationStaffCurators?: string[];
 
   @IsString({ each: true })
-  @IsArray()
-  @ArrayMaxSize(25)
-  verificationStaffSupports?: string[];
+  verificationStaffSupports?: string;
 
   @IsString({ each: true })
   @IsArray()
