@@ -36,6 +36,7 @@ export class EmbedDto {
   title?: string;
 
   @IsString()
+  @MinLength(1)
   description?: string;
 
   @IsString()
