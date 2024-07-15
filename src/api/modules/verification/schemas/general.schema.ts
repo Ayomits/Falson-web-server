@@ -17,8 +17,8 @@ export class GeneralVerification extends Document {
   @Prop({ type: String, required: false })
   unverifyRole: string;
 
-  @Prop({type: Number, required: true, default: VerificationType.Traditional})
-  type: number
+  @Prop({ type: Number, required: true, default: VerificationType.Traditional })
+  type: number;
 }
 
 export const GeneralVerificationSchema =
