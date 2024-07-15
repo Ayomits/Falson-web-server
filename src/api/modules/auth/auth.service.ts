@@ -19,6 +19,7 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from 'src/api/common/types/base.types';
 import crypto from 'crypto';
 import { Users } from '../users/schemas/users.schema';
+import { UserType } from 'src/api/common/types/user';
 
 @Injectable()
 export class AuthService {
@@ -107,7 +108,7 @@ export class AuthService {
       });
       const authTokens = await this.getTokens({
         userId: userData.id,
-        type: user.type,
+        type: user.type || UserType.everyone,
       });
       /**
        * createOrUpdate

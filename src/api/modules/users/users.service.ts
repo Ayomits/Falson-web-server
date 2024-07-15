@@ -208,9 +208,9 @@ export class UsersService {
         userId: existedUser.userId,
         type: existedUser ? existedUser.type : UserType.everyone,
       });
-      await this.cacheManager.set(existedUser.userId, newUser);
+      return newUser;
     } else {
-      return this.create({ ...userSchema, type: UserType.everyone });
+      return await this.create({ ...userSchema, type: UserType.everyone });
     }
   }
 
