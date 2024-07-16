@@ -6,8 +6,6 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import { ClientFetcher } from 'src/api/common/functions/';
 import { client } from 'src/discordjs/main';
