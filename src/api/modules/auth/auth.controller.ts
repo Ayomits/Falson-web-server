@@ -36,7 +36,7 @@ export class AuthController {
   @Get(`/discord/invite`)
   invite(@Res() res: Response) {
     return res.redirect(
-      `https://discord.com/oauth2/authorize?client_id=${this.clientService.client.user.id}&permissions=0&integration_type=0&scope=bot`,
+      `https://discord.com/oauth2/authorize?client_id=${this.clientService.client.user.id}&permissions=8&integration_type=0&scope=bot`,
     );
   }
 
