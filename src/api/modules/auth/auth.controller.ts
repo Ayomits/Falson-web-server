@@ -20,7 +20,7 @@ import { IsCache } from 'src/api/interceptors';
  */
 @Controller('auth')
 export class AuthController {
-  clientService = new ClientFetcher(client);
+  private clientService: ClientFetcher = new ClientFetcher(client);
 
   constructor(@Inject() private authService: AuthService) {}
 
@@ -31,6 +31,13 @@ export class AuthController {
   @IsCache(true)
   login(@Res() res: Response) {
     return this.authService.login(res);
+  }
+
+  @Get(`/discord/invite`)
+  invite(@Res() res: Response) {
+    return res.redirect(
+      `https://discord.com/oauth2/authorize?client_id=${this.clientService.client.user.id}&permissions=0&integration_type=0&scope=bot`,
+    );
   }
 
   /**
