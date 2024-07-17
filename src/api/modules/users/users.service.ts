@@ -77,7 +77,6 @@ export class UsersService {
           accessToken,
           refreshToken,
         });
-        await this.cacheManager.set(`${userId}-guilds`, guilds, 10_000);
         return guilds;
       } catch {
         return this.findUserGuilds(userId, count + 1);
@@ -87,10 +86,7 @@ export class UsersService {
   }
   async ownersAndAdminsGuild(req: Request): Promise<UserValidGuild[]> {
     const user = req.user as JwtPayload;
-    const cacheKey = `${user.userId}-guilds`;
-    const cachedGuilds = await this.cacheManager.get<UserGuild[]>(cacheKey);
-    const guilds =
-      cachedGuilds || ((await this.findUserGuilds(user.userId)) as UserGuild[]);
+    const guilds = (await this.findUserGuilds(user.userId)) as UserGuild[];
 
     if (!guilds) {
       throw new BadRequestException(`This user has no guilds`);
