@@ -96,20 +96,24 @@ export class UsersService {
     for await (const guild of guilds) {
       if (hasAdminPermission(guild.permissions) || guild.owner) {
         const guildFromCache = this.clientFetcher.getGuildFromCache(guild.id);
+        const iconUrl = `https://cdn.discordapp.com/icons/${guild?.id}/${guild?.icon}.png`;
         if (!guildFromCache) {
           sortedGuilds.push({
             guildId: guild.id,
-            icon: guild.icon,
+            icon: iconUrl.includes('undefined') ? null : iconUrl,
             name: guild.name,
+            memberCount: null,
             invited: false,
+            banner: null,
           });
         } else {
           sortedGuilds.push({
             guildId: guild.id,
-            icon: guild.icon,
-            name: guildFromCache?.iconURL(),
+            icon: guildFromCache?.iconURL(),
+            name: guildFromCache?.name,
             invited: true,
-            memberCount: guildFromCache.memberCount,
+            memberCount: guildFromCache?.memberCount,
+            banner: guildFromCache?.bannerURL(),
           });
         }
       }
