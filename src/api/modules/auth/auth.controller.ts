@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  Param,
   Post,
   Req,
   Res,
@@ -35,6 +36,13 @@ export class AuthController {
   invite(@Res() res: Response) {
     return res.redirect(
       `https://discord.com/oauth2/authorize?client_id=${this.clientService.client.user.id}&permissions=8&integration_type=0&scope=bot`,
+    );
+  }
+
+  @Get(`/discord/:guildId/invite`)
+  inviteToGuild(@Res() res: Response, @Param('guildId') guildId: string) {
+    return res.redirect(
+      `https://discord.com/oauth2/authorize?client_id=${this.clientService.client.user.id}&guild_id=${guildId}&permissions=8&integration_type=0&scope=bot`,
     );
   }
 
