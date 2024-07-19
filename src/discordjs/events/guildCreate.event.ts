@@ -7,7 +7,7 @@ import {
 } from 'discord.js';
 import { EventStructure } from '../common/structure/event.structure';
 import { INestApplicationContext } from '@nestjs/common';
-import { VerificationService } from 'src/api/modules/verification/verification.service';
+import { VerificationService } from 'src/api/modules/private/verification/VerificationService';
 
 export class GuildCreate extends EventStructure {
   name: string = Events.GuildCreate;

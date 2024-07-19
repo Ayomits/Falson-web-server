@@ -4,14 +4,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import {
-  AuthModule,
-  DiscordModule,
-  GuildSettingsModule,
-  StatsModule,
-  UsersModule,
-  VerificationModule,
-} from './modules';
+import { EndpointsGuard } from './guards/EndpointsGuard';
+import { PrivateModule } from './modules/private/private.module';
+import { PublicModule } from './modules/public/public.module';
 
 @Module({
   imports: [
@@ -21,14 +16,14 @@ import {
     ThrottlerModule.forRoot([
       {
         ttl: 60_000,
-        limit: 100
-      }
+        limit: 100,
+      },
     ]),
     CacheModule.register({
       isGlobal: true,
       ttl: 600_000,
     }),
-    AuthModule,
+
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -36,17 +31,19 @@ import {
         uri: configService.get<string>('MONGOOSE_URI'),
       }),
     }),
-    UsersModule,
-    StatsModule,
-    DiscordModule,
-    VerificationModule,
-    GuildSettingsModule,
+
+    PrivateModule,
+    PublicModule,
   ],
   controllers: [],
   providers: [
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: EndpointsGuard,
     },
   ],
 })
