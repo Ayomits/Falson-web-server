@@ -101,7 +101,7 @@ export class UsersService extends AbstractService {
         const iconUrl = `https://cdn.discordapp.com/icons/${guild?.id}/${guild?.icon}.png`;
         sortedGuilds.push({
           guildId: guild.id,
-          icon: iconUrl.includes('undefined') ? null : iconUrl,
+          icon: iconUrl.includes('undefined') || iconUrl.includes("null") ? null : iconUrl,
           name: guild.name,
           memberCount: guildFromCache ? guildFromCache.memberCount : null,
           invited: !!guildFromCache,
