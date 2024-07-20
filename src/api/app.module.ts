@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -6,6 +6,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { EndpointsGuard } from './guards/EndpointsGuard';
 import { PrivateModule } from './modules/private/private.module';
 import { PublicModule } from './modules/public/public.module';
+import { RateLimitMiddleware } from './middlewares/RateLimit';
 
 @Module({
   imports: [
@@ -36,4 +37,8 @@ import { PublicModule } from './modules/public/public.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RateLimitMiddleware).forRoutes("*")
+  }
+}
