@@ -1,2 +1,2 @@
 
-export * from "./existedInDiscord.middleware"
+export * from "./ExistedInDiscordMiddleware"

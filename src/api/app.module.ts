@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { EndpointsGuard } from './guards/EndpointsGuard';
 import { PrivateModule } from './modules/private/private.module';
 import { PublicModule } from './modules/public/public.module';
@@ -13,12 +12,6 @@ import { PublicModule } from './modules/public/public.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60_000,
-        limit: 100,
-      },
-    ]),
     CacheModule.register({
       isGlobal: true,
       ttl: 600_000,
@@ -37,10 +30,6 @@ import { PublicModule } from './modules/public/public.module';
   ],
   controllers: [],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
     {
       provide: APP_GUARD,
       useClass: EndpointsGuard,

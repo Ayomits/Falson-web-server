@@ -1,5 +1,4 @@
 import { BadRequestException, NestMiddleware } from '@nestjs/common';
-import { client } from 'src/discordjs/main';
 import { Abstract } from '../abstractions/Abstract';
 
 export class ExistedInDiscordMiddleware
