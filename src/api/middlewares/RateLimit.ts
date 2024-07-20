@@ -13,7 +13,7 @@ export class RateLimitMiddleware implements NestMiddleware {
   private userRateLimit = new Map<string, RateLimitApiRecord>();
 
   private readonly IP_MAX_REQUESTS = 450;
-  private readonly WINDOW_TIME = 3 * 1000;
+  private readonly WINDOW_TIME = 60 * 1000;
 
   private resetLimits(limits: Map<string, RateLimitApiRecord>) {
     const now = Date.now();
