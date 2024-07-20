@@ -1,9 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-
 import { TradionVerificationDto } from './TraditionDto';
-
 import { Cache } from '@nestjs/cache-manager';
 import { TradionVerification } from './TraditionSchema';
 import { GuildSettingsService } from '../../guild-settings/GuildSettingsService';

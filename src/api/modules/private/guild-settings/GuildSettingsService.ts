@@ -8,6 +8,7 @@ import { LanguagesDto } from './dto/LanguageDto';
 import { Response } from 'express';
 import { SchemasName } from 'src/api/types';
 import { AbstractService } from 'src/api/abstractions/AbstractService';
+import { Excluder } from 'src/api/utils';
 
 @Injectable()
 export class GuildSettingsService extends AbstractService {
@@ -64,9 +65,7 @@ export class GuildSettingsService extends AbstractService {
       guild._id,
       {
         $set: {
-          trustedRoles: roles.filter((role) =>
-            this.clientFetcher.getRoleFromCache(guildId, role),
-          ),
+          trustedRoles: Excluder.excludeInvalidRoles(guildId ,roles)
         },
       },
       { new: true, upsert: true },

@@ -3,7 +3,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Logs } from './LogSchema';
 import { InjectModel } from '@nestjs/mongoose';
-
 import { LogsDto } from './LogDto';
 import { SchemasName } from 'src/api/types';
 

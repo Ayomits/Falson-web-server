@@ -4,6 +4,9 @@ import { Request } from 'express';
 
 import { AbstractController } from 'src/api/abstractions/AbstractController';
 import { JwtPayload } from 'src/api/types';
+import { RouteProtectLevel } from 'src/api/decorators/RouteProtectDecorator';
+import { RouteType } from 'src/api/types/RouteType';
+import { AuthorizedRequest } from 'src/api/types/AuthorizedRequest';
 
 @Controller('users')
 export class UsersController extends AbstractController {
@@ -15,29 +18,32 @@ export class UsersController extends AbstractController {
    * Ради выдачи токенов дса
    */
   @Get(`@me`)
+  @RouteProtectLevel(RouteType.USER_ONLY)
   /**
    * Гарда, для просмотра JWT токена пользователя
    * Сделать объединённую гарду для бота + пользователя
    */
-  async findByUserId(@Req() req: Request) {
-    return this.usersService.findUser((req.user as JwtPayload).userId);
+  async findByUserId(@Req() req: AuthorizedRequest) {
+    return this.usersService.findUser(req.user.userId);
   }
 
   @Get('@me/data')
+  @RouteProtectLevel(RouteType.USER_ONLY)
   /**
    * Гарда, для просмотра JWT токена пользователя
    * Сделать объединённую гарду для бота + пользователя
    */
-  async findUserDate(@Req() req: Request) {
-    return this.usersService.findUserData((req.user as JwtPayload).userId);
+  async findUserDate(@Req() req: AuthorizedRequest) {
+    return this.usersService.findUserData(req.user.userId);
   }
 
   @Get('@me/guilds')
+  @RouteProtectLevel(RouteType.USER_ONLY)
   /**
    * Гарда, для просмотра JWT токена пользователя
    * Сделать объединённую гарду для бота + пользователя
    */
-  async ownersGuild(@Req() req: Request) {
+  async ownersGuild(@Req() req: AuthorizedRequest) {
     return this.usersService.ownersAndAdminsGuild(req);
   }
 }

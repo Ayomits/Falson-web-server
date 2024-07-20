@@ -15,6 +15,7 @@ import {
 } from 'src/api/types';
 import { hasAdminPermission } from 'src/api/utils';
 import { UserType } from 'src/api/types/User';
+import { AuthorizedRequest } from 'src/api/types/AuthorizedRequest';
 
 @Injectable()
 export class UsersService extends AbstractService {
@@ -83,8 +84,10 @@ export class UsersService extends AbstractService {
     }
     throw new BadRequestException(`Discord rate limits`);
   }
-  async ownersAndAdminsGuild(req: Request): Promise<UserValidGuild[]> {
-    const user = req.user as JwtPayload;
+  async ownersAndAdminsGuild(
+    req: AuthorizedRequest,
+  ): Promise<UserValidGuild[]> {
+    const user = req.user;
     const guilds = (await this.findUserGuilds(user.userId)) as UserGuild[];
 
     if (!guilds) {

@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { AbstractGuard } from '../abstractions/AbstractGuard';
@@ -13,6 +14,7 @@ import { JwtPayload } from '../types';
 import { AuthorizedRequest } from '../types/AuthorizedRequest';
 import { GuildSettingsService } from '../modules/private/guild-settings/GuildSettingsService';
 
+@Injectable()
 export class EndpointsGuard extends AbstractGuard implements CanActivate {
   constructor(
     private guildService: GuildSettingsService,
@@ -27,11 +29,11 @@ export class EndpointsGuard extends AbstractGuard implements CanActivate {
     const req = context.switchToHttp().getRequest() as Request;
     try {
       const headers = req.headers;
-      console.log(this.reflector, this.guildService, this.configService, this.jwtService);
-      const requestType = this.reflector.get<RouteType>(
-        `RequestType`,
-        context.getHandler(),
-      );
+      const handler = context.getHandler();
+      const requestType = this.reflector.get<RouteType>(`RequestType`, handler);
+      if (!requestType) {
+        return true;
+      }
       if (requestType === RouteType.PUBLIC) {
         return true;
       }
@@ -70,7 +72,7 @@ export class EndpointsGuard extends AbstractGuard implements CanActivate {
       }
     } catch (err) {
       console.log(err);
-      throw new InternalServerErrorException('By love ayomi <3');
+      throw new InternalServerErrorException();
     }
   }
 

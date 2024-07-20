@@ -72,6 +72,15 @@ import { VoiceModule } from './voice-settings/VoiceModule';
     VoiceController,
     LogsController,
   ],
-  exports: [VerificationModule],
+  exports: [
+    VerificationModule,
+    EmbedsSettingsModule,
+    GeneralSettingsModule,
+    LogsSettingsModule,
+    TraditionSettingsModule,
+    VoiceModule,
+    GuildSettingsModule,
+    AuthModule,
+  ],
 })
 export class VerificationModule {}
