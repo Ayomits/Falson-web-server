@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -71,8 +72,7 @@ export class EndpointsGuard extends AbstractGuard implements CanActivate {
         );
       }
     } catch (err) {
-      console.log(err);
-      throw new InternalServerErrorException();
+      throw new ForbiddenException();
     }
   }
 
