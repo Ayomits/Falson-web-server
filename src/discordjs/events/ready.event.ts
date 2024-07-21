@@ -1,5 +1,5 @@
 import { Client, Events } from 'discord.js';
-import { EventStructure } from '../common/structure/event.structure';
+import { EventStructure } from '../common/structure/EventStructure';
 import { INestApplicationContext } from '@nestjs/common';
 import { ReadyService } from './ready.service';
 

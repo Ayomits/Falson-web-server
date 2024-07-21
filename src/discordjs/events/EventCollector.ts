@@ -3,7 +3,7 @@ import { Client, Collection } from 'discord.js';
 import * as path from 'path';
 import kleur from 'kleur';
 import { glob } from 'glob';
-import { EventStructure } from 'src/discordjs/common/structure/event.structure';
+import { EventStructure } from 'src/discordjs/common/structure/EventStructure';
 import { getApp } from '../main';
 
 export default class EventCollector extends Collection<string, Event> {

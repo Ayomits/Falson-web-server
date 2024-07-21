@@ -1,4 +1,4 @@
-import kleur = require("kleur");
+import kleur from "kleur";
 
 export function logger(startMessage: string, endMessage: string) {
   return function (

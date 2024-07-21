@@ -10,7 +10,7 @@ import {
  * Для того чтобы работать с свойствами
  */
 export interface IComponentStructure {
-  readonly customId;
+  readonly customId: string;
   execute(
     interaction:
       | ButtonInteraction

@@ -1,2 +1,2 @@
-export * from './logFunction.decorator';
-export * from './measureTime.decorator';
+export * from './LoggerDecorator';
+export * from './MeasureTimeDecorator';

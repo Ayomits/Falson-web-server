@@ -1,8 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Client, GatewayIntentBits, Options } from 'discord.js';
 import { AppModule } from 'src/api/app.module';
-import EventCollector from './events/events.collector';
-
+import EventCollector from './events/EventCollector';
 const intents = [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers];
 
 export const client: Client = new Client({
@@ -19,13 +18,16 @@ export const client: Client = new Client({
     GuildTextThreadManager: 0,
     GuildScheduledEventManager: 0,
   }),
-  
+  shards: 'auto',
 });
+
 export async function getApp() {
   return await NestFactory.createApplicationContext(AppModule);
 }
 
 export async function discordjsInitialize() {
   new EventCollector(client);
-  await client.login(process.env.TOKEN).then(() => console.log(`Бот запущен`));
+  await client.login(process.env.TOKEN).then(() => {
+    console.log(``)
+  });
 }

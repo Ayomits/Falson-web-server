@@ -5,7 +5,7 @@ import {
   Guild,
   TextChannel,
 } from 'discord.js';
-import { EventStructure } from '../common/structure/event.structure';
+import { EventStructure } from '../common/structure/EventStructure';
 import { INestApplicationContext } from '@nestjs/common';
 import { VerificationService } from 'src/api/modules/private/verification/VerificationService';
 
